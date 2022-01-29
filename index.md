@@ -1,37 +1,29 @@
-## Welcome to GitHub Pages
+**This plugin uses bStats I would really appreciate it if you guys allow data collection by running `/sponge metrics NyxEffect enable`**
 
-You can use the [editor on GitHub](https://github.com/poqdavid/NyxEffect/edit/gh-pages/index.md) to maintain and preview the content for your website in Markdown files.
+## Dependencies / Requirements
+NyxCore https://poqdavid.github.io/NyxCore/
 
-Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
+## Commands
+	/nyxeffect <effect>
+	/nyxeffectlist <option>
+	/nyxeffectcheck <user>
+	/nyxeffectdisable <user>
 
-### Markdown
+## Premissions
+    NyxCore.Effect.Command.Main
+    NyxCore.Effect.Command.Help
+    NyxCore.Effect.Command.Check
+    NyxCore.Effect.Command.CheckOthers
+    NyxCore.Effect.Command.DisableOthers
+    NyxCore.Effect.Command.Effect
+    NyxCore.Effect.Command.EffectOther
+    NyxCore.Effect.Command.Task
+    NyxCore.Effect.Command.List
+    NyxCore.Effect.Command.TaskOther
+    NyxCore.Effect.Effects.<effectid>
 
-Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
-
-```markdown
-Syntax highlighted code block
-
-# Header 1
-## Header 2
-### Header 3
-
-- Bulleted
-- List
-
-1. Numbered
-2. List
-
-**Bold** and _Italic_ and `Code` text
-
-[Link](url) and ![Image](src)
-```
-
-For more details see [Basic writing and formatting syntax](https://docs.github.com/en/github/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax).
-
-### Jekyll Themes
-
-Your Pages site will use the layout and styles from the Jekyll theme you have selected in your [repository settings](https://github.com/poqdavid/NyxEffect/settings/pages). The name of this theme is saved in the Jekyll `_config.yml` configuration file.
-
-### Support or Contact
-
-Having trouble with Pages? Check out our [documentation](https://docs.github.com/categories/github-pages-basics/) or [contact support](https://support.github.com/contact) and we’ll help you sort it out.
+**Donate:**
+<br/>**BTC Legacy:** 1Q2JQG3iCLZPT2iJfDLow1oQVGKmxheoAh
+<br/>**BTC Segwit:** bc1q8gurls0wjkfe43ygmrqmu2pzmyjetnrvgws9sr
+<br/>**BCH:** qrks52smlqw7d8700d77uqvmve03d4knzvd2vghaqz
+<br/>**ETH:** 0x7218779242a8425879B09969431c20F5eC1a192D
