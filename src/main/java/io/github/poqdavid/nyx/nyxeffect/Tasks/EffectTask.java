@@ -28,6 +28,7 @@ import io.github.poqdavid.nyx.nyxeffect.NyxEffect;
 import io.github.poqdavid.nyx.nyxeffect.Utils.Data.ParticleDataList;
 import io.github.poqdavid.nyx.nyxeffect.Utils.Tools;
 import org.spongepowered.api.block.BlockState;
+import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.effect.particle.ParticleEffect;
 import org.spongepowered.api.effect.particle.ParticleOptions;
 import org.spongepowered.api.entity.living.player.Player;
@@ -120,79 +121,80 @@ public class EffectTask implements Consumer<Task> {
     }
 
     private void spawnEffects(Player player, String effecttype, String effectdata, Vector3d loc, long cleartime) {
-
-        if (effecttype.equalsIgnoreCase("timer")) {
-            try {
-                if (effectdata.contains("delay:")) {
-                    final String[] data = effectdata.replace(" ", "").split(":");
-                    Thread.sleep(Integer.parseInt(data[1]));
-                }
-
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-
-        if (effecttype.equalsIgnoreCase("particle")) {
-            if (loc != null) {
-                final String data = effectdata;
-                String id = "NONE";
-                if (data.contains(";")) {
-                    final String[] datas = data.replace(" ", "").split(";");
-
-                    String[] colorData = new String[3];
-                    colorData[0] = "NONE";
-                    Color colors = Color.BLACK;
-                    for (String datax : datas) {
-                        if (datax.contains("minecraft:")) {
-                            id = datax;
-                        }
-
-                        if (datax.contains("Color")) {
-                            colorData = datax.replace("Color{", "").replace("}", "").replace("red=", "").replace("green=", "").replace("blue=", "").split(",").clone();
-
-                            final int red = Integer.parseInt(colorData[0]);
-                            final int green = Integer.parseInt(colorData[1]);
-                            final int blue = Integer.parseInt(colorData[2]);
-                            colors = Color.ofRgb(red, green, blue);
-                        }
-
+        if (!player.get(Keys.VANISH).filter(value -> value).isPresent()) {
+            if (effecttype.equalsIgnoreCase("timer")) {
+                try {
+                    if (effectdata.contains("delay:")) {
+                        final String[] data = effectdata.replace(" ", "").split(":");
+                        Thread.sleep(Integer.parseInt(data[1]));
                     }
 
-                    if (!colorData[0].equals("NONE")) {
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
 
-                        player.getWorld().spawnParticles(ParticleEffect.builder().type(CoreTools.GetParticleType(id)).option(ParticleOptions.COLOR, colors).build(), loc);
+            if (effecttype.equalsIgnoreCase("particle")) {
+                if (loc != null) {
+                    final String data = effectdata;
+                    String id = "NONE";
+                    if (data.contains(";")) {
+                        final String[] datas = data.replace(" ", "").split(";");
+
+                        String[] colorData = new String[3];
+                        colorData[0] = "NONE";
+                        Color colors = Color.BLACK;
+                        for (String datax : datas) {
+                            if (datax.contains("minecraft:")) {
+                                id = datax;
+                            }
+
+                            if (datax.contains("Color")) {
+                                colorData = datax.replace("Color{", "").replace("}", "").replace("red=", "").replace("green=", "").replace("blue=", "").split(",").clone();
+
+                                final int red = Integer.parseInt(colorData[0]);
+                                final int green = Integer.parseInt(colorData[1]);
+                                final int blue = Integer.parseInt(colorData[2]);
+                                colors = Color.ofRgb(red, green, blue);
+                            }
+
+                        }
+
+                        if (!colorData[0].equals("NONE")) {
+
+                            player.getWorld().spawnParticles(ParticleEffect.builder().type(CoreTools.GetParticleType(id)).option(ParticleOptions.COLOR, colors).build(), loc);
+                        } else {
+                            player.getWorld().spawnParticles(ParticleEffect.builder().type(CoreTools.GetParticleType(id)).build(), loc);
+                        }
+
                     } else {
+                        id = data;
                         player.getWorld().spawnParticles(ParticleEffect.builder().type(CoreTools.GetParticleType(id)).build(), loc);
                     }
-
-                } else {
-                    id = data;
-                    player.getWorld().spawnParticles(ParticleEffect.builder().type(CoreTools.GetParticleType(id)).build(), loc);
                 }
             }
-        }
 
-        if (effecttype.equalsIgnoreCase("block")) {
-            if (player.isOnGround()) {
-                try {
-                    Location<World> locs = new Location<World>(player.getLocation().getExtent(), new Vector3d(loc.getX(), player.getLocation().getY(), loc.getZ()));
-                    if (locs != null) {
-                        Location<World> blockOn = Tools.getLocBelow(player, locs);
-                        if (blockOn != null) {                //blockOn.getBlockType() != BlockTypes.AIR && blockOn.getBlockType() != BlockTypes.WATER
-                            if (!NyxEffect.getInstance().restricted_blocks.contains(blockOn.getBlockType())) {
-                                final Vector3i loci = new Vector3i(blockOn.getX(), blockOn.getY(), blockOn.getZ());
+            if (effecttype.equalsIgnoreCase("block")) {
+                if (player.isOnGround()) {
+                    try {
+                        Location<World> locs = new Location<World>(player.getLocation().getExtent(), new Vector3d(loc.getX(), player.getLocation().getY(), loc.getZ()));
+                        if (locs != null) {
+                            Location<World> blockOn = Tools.getLocBelow(player, locs);
+                            if (blockOn != null) {                //blockOn.getBlockType() != BlockTypes.AIR && blockOn.getBlockType() != BlockTypes.WATER
+                                if (!NyxEffect.getInstance().restricted_blocks.contains(blockOn.getBlockType())) {
+                                    final Vector3i loci = new Vector3i(blockOn.getX(), blockOn.getY(), blockOn.getZ());
 
-                                player.getWorld().sendBlockChange(loci, BlockState.builder().from(CoreTools.GetBlock(effectdata)).build());
-                                Tools.ClearBlockTask(player, loci, cleartime);
+                                    player.getWorld().sendBlockChange(loci, BlockState.builder().from(CoreTools.GetBlock(effectdata)).build());
+                                    Tools.ClearBlockTask(player, loci, cleartime);
 
+                                }
                             }
                         }
+                    } catch (Exception e) {
                     }
-                } catch (Exception e) {
+
+
                 }
-
-
             }
         }
     }
