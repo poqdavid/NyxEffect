@@ -44,6 +44,7 @@ public class CommandManager {
 
     public static CommandSpec mainCmd;
     public static CommandSpec taskCmd;
+    public static CommandSpec reloadCmd;
     public static CommandSpec listCmd;
     private final Game game;
     private final NyxEffect ne;
@@ -60,11 +61,17 @@ public class CommandManager {
                 .executor(new HelpCMD())
                 .build();
 
+        reloadCmd = CommandSpec.builder()
+                .description(Text.of("/nyxeffect reload"))
+                .executor(new ReloadCMD())
+                .build();
+
         mainCmd = CommandSpec.builder()
                 .description(Text.of("To enable/disable magic particles"))
                 .arguments(GenericArguments.optional(GenericArguments.string(Text.of("effect"))), GenericArguments.optional(GenericArguments.playerOrSource(Text.of("player"))))
                 .executor(new MainCMD())
                 .child(helpCmd, HelpCMD.getAlias())
+                .child(reloadCmd, ReloadCMD.getAlias())
                 .build();
 
         checkCmd = CommandSpec.builder()
@@ -82,7 +89,6 @@ public class CommandManager {
                 .description(Text.of("To restart/stop/start effect tasks"))
                 .arguments(GenericArguments.optional(GenericArguments.string(Text.of("task"))), GenericArguments.optional(GenericArguments.string(Text.of("action"))), GenericArguments.optional(GenericArguments.playerOrSource(Text.of("player"))))
                 .executor(new TaskCMD()).build();
-
 
         listCmd = CommandSpec.builder()
                 .description(Text.of("Shows you a list of effects"))

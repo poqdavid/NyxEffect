@@ -22,54 +22,56 @@ package io.github.poqdavid.nyx.nyxeffect.Commands;
 
 import io.github.poqdavid.nyx.nyxcore.Permissions.EffectPermission;
 import io.github.poqdavid.nyx.nyxeffect.NyxEffect;
+import io.github.poqdavid.nyx.nyxeffect.Utils.Tools;
+import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.command.CommandPermissionException;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.command.args.CommandContext;
 import org.spongepowered.api.command.spec.CommandExecutor;
-import org.spongepowered.api.service.pagination.PaginationList;
+import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.scheduler.Task;
 import org.spongepowered.api.text.Text;
-import org.spongepowered.api.text.action.TextActions;
 import org.spongepowered.api.text.format.TextColors;
-import org.spongepowered.api.text.format.TextStyles;
-
-import java.net.MalformedURLException;
-import java.net.URL;
 
 
-public class HelpCMD implements CommandExecutor {
+public class ReloadCMD implements CommandExecutor {
 
     public static String[] getAlias() {
-        return new String[]{"help", "?"};
+        return new String[]{"reload"};
     }
 
     @Override
     public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
-        if (src.hasPermission(EffectPermission.COMMAND_HELP)) {
-            PaginationList.Builder builder = PaginationList.builder();
-            URL url1 = null;
-            try {
-                url1 = new URL("https://github.com/poqdavid/NyxEffect/");
-            } catch (MalformedURLException e) {
-                e.printStackTrace();
+        if (src.hasPermission(EffectPermission.COMMAND_RELOAD)) {
+            NyxEffect.HOLDEFFECTS = true;
+
+            src.sendMessage(Text.of(TextColors.GOLD, "Stopping all Tasks!!"));
+            for (Player player : Sponge.getServer().getOnlinePlayers()) {
+                for (Task task : Sponge.getScheduler().getScheduledTasks(NyxEffect.getInstance())) {
+                    if (task.getName().contains(player.getUniqueId().toString())) {
+                        NyxEffect.getInstance().getLogger().info("Stopping Task: " + task.getName());
+                        task.cancel();
+                    }
+                }
             }
+            src.sendMessage(Text.of(TextColors.GOLD, "Stopped all Tasks!!"));
 
-            Text h1 = Text.builder("Author: ").color(TextColors.BLUE).style(TextStyles.BOLD).build();
-            Text h2 = Text.builder("POQDavid").color(TextColors.GRAY).style(TextStyles.BOLD).onHover(TextActions.showText(Text.of(url1.toString()))).onClick(TextActions.openUrl(url1)).build();
+            src.sendMessage(Text.of(TextColors.GOLD, "Loading Effects!!"));
+            NyxEffect.getInstance().ParticlesLIST = Tools.loadparticles(NyxEffect.getInstance().particlesdatapath);
+            src.sendMessage(Text.of(TextColors.GOLD, "Effects Loaded!!"));
 
-            builder.title(Text.of("§9Nyx§5Effect §7- §6V" + NyxEffect.getInstance().getVersion()))
-                    .header(Text.of(h1, h2))
-                    .contents(
-                            Text.of(TextColors.BLUE, TextStyles.ITALIC, ""),
-                            Text.of(TextColors.GREEN, TextStyles.BOLD, "Commands"),
-                            Text.of("§6- /§7nyxeffect §6<§7effect§6>"),
-                            Text.of("§6- /§7nyxeffectlist §6<§7option(more / all)§6>"),
-                            Text.of("§6- /§7nyxeffectcheck §6<§7user§6>"),
-                            Text.of("§6- /§7nyxeffectdisable §6<§7user§6>")
-                    )
-                    .padding(Text.of("="))
-                    .sendTo(src);
+            src.sendMessage(Text.of(TextColors.GOLD, "Registering Effect Permission Nodes!!"));
+            NyxEffect.getInstance().RegisterEffectNodes();
+            src.sendMessage(Text.of(TextColors.GOLD, "Registered Effect Permission Nodes!!"));
+
+            src.sendMessage(Text.of(TextColors.GOLD, "Starting all Tasks!!"));
+            for (Player player : Sponge.getServer().getOnlinePlayers()) {
+                NyxEffect.getInstance().StartPlayerrEffcts(player);
+            }
+            src.sendMessage(Text.of(TextColors.GOLD, "Started all Tasks!!"));
+
         } else {
             throw new CommandPermissionException(Text.of("You don't have permission to use this command."));
         }

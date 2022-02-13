@@ -27,6 +27,7 @@ import io.github.poqdavid.nyx.nyxcore.Utils.CText;
 import io.github.poqdavid.nyx.nyxcore.Utils.NCLogger;
 import io.github.poqdavid.nyx.nyxeffect.Commands.CommandManager;
 import io.github.poqdavid.nyx.nyxeffect.Listeners.NyxEffectListener;
+import io.github.poqdavid.nyx.nyxeffect.Tasks.EffectTask;
 import io.github.poqdavid.nyx.nyxeffect.Utils.Data.EffectsData;
 import io.github.poqdavid.nyx.nyxeffect.Utils.Data.ParticlesData;
 import io.github.poqdavid.nyx.nyxeffect.Utils.Data.PlayerData;
@@ -62,16 +63,18 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
-@Plugin(id = "nyxeffect", name = "@name@", version = "@version@", description = "@description@", url = "https://github.com/poqdavid/NyxEffect", authors = {"@authors@"}, dependencies = {@Dependency(id = "nyxcore", version = "1.5", optional = false)})
+@Plugin(id = "nyxeffect", name = "@name@", version = "@version@", description = "@description@", url = "https://github.com/poqdavid/NyxEffect", authors = {"@authors@"}, dependencies = {@Dependency(id = "nyxcore", version = "1.+", optional = false)})
 public class NyxEffect {
 
+    public static boolean HOLDEFFECTS = false;
     private static NyxEffect NyxEffect;
+    public final Path particlesdatapath;
     private final NCLogger logger;
     private final Metrics metrics;
     private final Path dataDir;
     private final Path userparticledatapath;
-    private final Path particlesdatapath;
     private final PluginContainer pluginContainer;
     public Map<UUID, PlayerData> PlayerEvent;
     public Map<String, List<String>> UserParticlesLIST;
@@ -355,19 +358,7 @@ public class NyxEffect {
                     .assign(PermissionDescription.ROLE_ADMIN, true)
                     .register();
 
-            if (this.ParticlesLIST != null) {
-                for (ParticlesData effect : this.ParticlesLIST) {
-                    this.permdescbuilder
-                            .id(EffectPermission.EFFECTS + "." + effect.getEffectsData().getId())
-                            .description(Text.of("Allows the use of effect with id of " + effect.getEffectsData().getId()))
-                            .assign(PermissionDescription.ROLE_USER, false)
-                            .assign(PermissionDescription.ROLE_STAFF, false)
-                            .assign(PermissionDescription.ROLE_ADMIN, true)
-                            .register();
-
-                    this.logger.info("Effect node: " + EffectPermission.EFFECTS + "." + effect.getEffectsData().getId());
-                }
-            }
+            RegisterEffectNodes();
         }
 
         try {
@@ -641,6 +632,56 @@ public class NyxEffect {
         }
 
         Tools.saveparticles(this.UserParticlesLIST, this.userparticledatapath);
+    }
+
+    public void RegisterEffectNodes() {
+        if (this.ParticlesLIST != null) {
+            for (ParticlesData effect : this.ParticlesLIST) {
+                this.permdescbuilder
+                        .id(EffectPermission.EFFECTS + "." + effect.getEffectsData().getId())
+                        .description(Text.of("Allows the use of effect with id of " + effect.getEffectsData().getId()))
+                        .assign(PermissionDescription.ROLE_USER, false)
+                        .assign(PermissionDescription.ROLE_STAFF, false)
+                        .assign(PermissionDescription.ROLE_ADMIN, true)
+                        .register();
+
+                this.logger.info("Effect node: " + EffectPermission.EFFECTS + "." + effect.getEffectsData().getId());
+            }
+        }
+
+    }
+
+    public void StartPlayerrEffcts(Player player) {
+
+        PlayerEvent.putIfAbsent(player.getUniqueId(), new PlayerData(player.getName(), false));
+
+        if (UserParticlesLIST != null) {
+            if (UserParticlesLIST.get(player.getUniqueId().toString()) != null) {
+                if (!UserParticlesLIST.get(player.getUniqueId().toString()).contains("NONE")) {
+                    Tools.AddMovementTask(player);
+                }
+            }
+        }
+
+
+        if (UserParticlesLIST.containsKey(player.getUniqueId().toString())) {
+            final List<String> pd = UserParticlesLIST.get(player.getUniqueId().toString());
+            for (String effect : pd) {
+                for (ParticlesData pdent : ParticlesLIST) {
+
+                    if (pdent.getEffectsData().getId().equalsIgnoreCase(effect)) {
+                        Task.builder().execute(new EffectTask(player, NyxEffect, pdent.getEffectsData().getParticleDataList()))
+                                .async()
+                                .interval(pdent.getEffectsData().getInterval(), TimeUnit.MILLISECONDS)
+                                .name("TaskOwner: " + player.getUniqueId() + " Effect: " + pdent.getEffectsData().getId().toLowerCase()).submit(NyxEffect);
+
+                    }
+
+                }
+
+            }
+
+        }
     }
 
 }
