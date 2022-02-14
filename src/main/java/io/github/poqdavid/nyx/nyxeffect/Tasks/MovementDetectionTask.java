@@ -22,14 +22,16 @@ package io.github.poqdavid.nyx.nyxeffect.Tasks;
 
 import com.flowpowered.math.vector.Vector3d;
 import io.github.poqdavid.nyx.nyxeffect.NyxEffect;
+import org.spongepowered.api.Sponge;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.scheduler.Task;
 
+import java.util.UUID;
 import java.util.function.Consumer;
 
 public class MovementDetectionTask implements Consumer<Task> {
     private final NyxEffect cf;
-    private final Player player;
+    private final Player playerobj;
     private Boolean taskran = false;
     private Task task;
 
@@ -41,7 +43,7 @@ public class MovementDetectionTask implements Consumer<Task> {
 
     public MovementDetectionTask(Player player, NyxEffect cf) {
         this.cf = cf;
-        this.player = player;
+        this.playerobj = player;
     }
 
     @Override
@@ -54,17 +56,19 @@ public class MovementDetectionTask implements Consumer<Task> {
         }
 
 
-        if (!this.cf.PlayerEvent.containsKey(this.player.getUniqueId())) {
+        if (!this.cf.PlayerEvent.containsKey(this.playerobj.getUniqueId())) {
             this.cf.getLogger().info("Stopping Task: " + task.getName());
             this.task.cancel();
         } else {
-            this.Run(this.player);
+            this.Run(this.playerobj.getUniqueId());
         }
 
     }
 
-    private void Run(Player player) {
+    private void Run(UUID uuid) {
         try {
+            Player player = Sponge.getServer().getPlayer(uuid).orElse(playerobj);
+
             this.loc1 = player.getLocation().getPosition();
             this.rot1 = player.getHeadRotation();
 

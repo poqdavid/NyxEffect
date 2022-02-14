@@ -22,11 +22,12 @@ package io.github.poqdavid.nyx.nyxeffect.Listeners;
 
 import io.github.poqdavid.nyx.nyxcore.Utils.CoreTools;
 import io.github.poqdavid.nyx.nyxeffect.NyxEffect;
-import org.spongepowered.api.Sponge;
+import io.github.poqdavid.nyx.nyxeffect.Utils.Tools;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
+import org.spongepowered.api.event.entity.DestructEntityEvent;
+import org.spongepowered.api.event.entity.SpawnEntityEvent;
 import org.spongepowered.api.event.network.ClientConnectionEvent;
-import org.spongepowered.api.scheduler.Task;
 
 @SuppressWarnings("unused")
 public class NyxEffectListener {
@@ -35,7 +36,17 @@ public class NyxEffectListener {
     public void onPlayerJoin(ClientConnectionEvent.Join event) {
         if (!NyxEffect.HOLDEFFECTS) {
             final Player player = CoreTools.getPlayer(event.getCause()).get();
-            NyxEffect.getInstance().StartPlayerrEffcts(player);
+            Tools.UserTaskStart(player, "all", false);
+        }
+    }
+
+    @Listener
+    public void onEntitySpawn(SpawnEntityEvent event) {
+        if (event.getCause().root() instanceof net.minecraft.entity.player.EntityPlayerMP) {
+            if (!NyxEffect.HOLDEFFECTS) {
+                final Player player = (Player) event.getCause().root();
+                Tools.UserTaskRestart(player, "all", false);
+            }
         }
     }
 
@@ -43,13 +54,18 @@ public class NyxEffectListener {
     public void onPlayerDisconnect(ClientConnectionEvent.Disconnect event) {
         if (!NyxEffect.HOLDEFFECTS) {
             final Player player = CoreTools.getPlayer(event.getCause()).get();
+            Tools.UserTaskStop(player, "all", false);
+        }
+    }
 
-            for (Task task : Sponge.getScheduler().getScheduledTasks(NyxEffect.getInstance())) {
-                if (task.getName().contains(player.getUniqueId().toString())) {
-                    NyxEffect.getInstance().getLogger().info("Stopping Task: " + task.getName());
-                    task.cancel();
-                }
+    @Listener
+    public void onPlayerDeath(DestructEntityEvent.Death event) {
+        if (!NyxEffect.HOLDEFFECTS) {
+            if (event.getTargetEntity() instanceof Player) {
+                final Player player = (Player) event.getTargetEntity();
+                Tools.UserTaskStop(player, "all", false);
             }
         }
     }
+
 }

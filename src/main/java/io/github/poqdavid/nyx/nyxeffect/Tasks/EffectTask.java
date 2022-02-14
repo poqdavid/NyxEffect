@@ -27,6 +27,7 @@ import io.github.poqdavid.nyx.nyxcore.Utils.CoreTools;
 import io.github.poqdavid.nyx.nyxeffect.NyxEffect;
 import io.github.poqdavid.nyx.nyxeffect.Utils.Data.ParticleDataList;
 import io.github.poqdavid.nyx.nyxeffect.Utils.Tools;
+import org.spongepowered.api.Sponge;
 import org.spongepowered.api.block.BlockState;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.effect.particle.ParticleEffect;
@@ -38,18 +39,20 @@ import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.function.Consumer;
 
 public class EffectTask implements Consumer<Task> {
     private final NyxEffect cf;
-    private final Player player;
+    private final Player playerobj;
     private final List<ParticleDataList> pds_list;
     private Boolean taskran = false;
     private Task task;
+    private Vector3d rotation = new Vector3d(0, 0, 0);
 
     public EffectTask(Player player, NyxEffect cf, List<ParticleDataList> pds_list) {
         this.cf = cf;
-        this.player = player;
+        this.playerobj = player;
         this.pds_list = pds_list;
     }
 
@@ -63,24 +66,26 @@ public class EffectTask implements Consumer<Task> {
         }
 
 
-        if (!this.cf.PlayerEvent.containsKey(this.player.getUniqueId())) {
+        if (!this.cf.PlayerEvent.containsKey(this.playerobj.getUniqueId())) {
             this.cf.getLogger().info("Stopping Task: " + task.getName());
             this.task.cancel();
         } else {
-            this.Run(this.player, this.pds_list);
+            this.Run(playerobj.getUniqueId(), this.pds_list);
         }
 
     }
 
-    private void Run(Player player, List<ParticleDataList> pdslist) {
+    private void Run(UUID uuid, List<ParticleDataList> pdslist) {
         try {
+            Player player = Sponge.getServer().getPlayer(uuid).orElse(playerobj);
             for (ParticleDataList pds : pdslist) {
                 Vector3d loc;
+                Vector3d playerR = player.getRotation();
+
+                this.rotation = new Vector3d(0, playerR.getY(), playerR.getZ());
 
                 if (pds.getParticleEffect().getRelatedlocation()) {
-                    final Vector3d rotation = player.getRotation();
-
-                    final Quaterniond Qu = Quaterniond.fromAxesAnglesDeg(rotation.getX(), -rotation.getY(), rotation.getZ());
+                    final Quaterniond Qu = Quaterniond.fromAxesAnglesDeg(this.rotation.getX(), -this.rotation.getY(), this.rotation.getZ());
 
                     if (pds.getParticleEffect().getRelatedrotation()) {
                         loc = CoreTools.GetLocation(player, Qu, Qu.rotate(pds.getVector3d())).getPosition();
@@ -89,8 +94,7 @@ public class EffectTask implements Consumer<Task> {
                     }
                 } else {
                     if (pds.getParticleEffect().getRelatedrotation()) {
-                        final Vector3d rotation = player.getRotation();
-                        final Quaterniond Qu = Quaterniond.fromAxesAnglesDeg(rotation.getX(), -rotation.getY(), rotation.getZ());
+                        final Quaterniond Qu = Quaterniond.fromAxesAnglesDeg(this.rotation.getX(), -this.rotation.getY(), this.rotation.getZ());
                         loc = CoreTools.GetLocation(player, Qu, Qu.rotate(pds.getVector3d())).getPosition();
                     } else {
                         loc = player.getLocation().getPosition().add(pds.getVector3d());

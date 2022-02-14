@@ -31,6 +31,7 @@ import io.github.poqdavid.nyx.nyxeffect.Tasks.EffectTask;
 import io.github.poqdavid.nyx.nyxeffect.Tasks.MovementDetectionTask;
 import io.github.poqdavid.nyx.nyxeffect.Utils.Data.EffectsData;
 import io.github.poqdavid.nyx.nyxeffect.Utils.Data.ParticlesData;
+import io.github.poqdavid.nyx.nyxeffect.Utils.Data.PlayerData;
 import org.apache.commons.io.FileUtils;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.block.BlockType;
@@ -215,6 +216,16 @@ public class Tools {
 
     }
 
+    public static boolean TaskDoesNotExist(String name) {
+        boolean output = true;
+        for (Task taskd : Sponge.getScheduler().getScheduledTasks(NyxEffect.getInstance())) {
+            if (taskd.getName().equals(name)) {
+                output = false;
+            }
+        }
+        return output;
+    }
+
     public static void UserTaskStop(Player player, String task, Boolean sendmsg) {
         final String uuid = player.getUniqueId().toString();
         if (sendmsg) {
@@ -228,6 +239,7 @@ public class Tools {
                     taskd.cancel();
                 }
             }
+            NyxEffect.getInstance().PlayerEvent.remove(player.getUniqueId());
         } else {
 
             if (task.equals("movement")) {
@@ -248,19 +260,22 @@ public class Tools {
             player.sendMessage(Text.of(TextColors.AQUA, "Starting task/s"));
         }
 
+        NyxEffect.getInstance().PlayerEvent.putIfAbsent(player.getUniqueId(), new PlayerData(player.getName(), false));
+
         if (task.equals("all")) {
             Tools.AddMovementTask(player);
             if (NyxEffect.getInstance().UserParticlesLIST.containsKey(player.getUniqueId().toString())) {
                 final List<String> pd = NyxEffect.getInstance().UserParticlesLIST.get(player.getUniqueId().toString());
                 for (String effect : pd) {
                     for (ParticlesData pdent : NyxEffect.getInstance().ParticlesLIST) {
-
                         if (pdent.getEffectsData().getId().equalsIgnoreCase(effect)) {
-                            Task.builder().execute(new EffectTask(player, NyxEffect.getInstance(), pdent.getEffectsData().getParticleDataList()))
-                                    .async()
-                                    .interval(pdent.getEffectsData().getInterval(), TimeUnit.MILLISECONDS)
-                                    .name("TaskOwner: " + player.getUniqueId() + " Effect: " + pdent.getEffectsData().getId().toLowerCase()).submit(NyxEffect.getInstance());
-
+                            String name = "TaskOwner: " + player.getUniqueId() + " Effect: " + pdent.getEffectsData().getId().toLowerCase();
+                            if (TaskDoesNotExist(name)) {
+                                Task.builder().execute(new EffectTask(player, NyxEffect.getInstance(), pdent.getEffectsData().getParticleDataList()))
+                                        .async()
+                                        .interval(pdent.getEffectsData().getInterval(), TimeUnit.MILLISECONDS)
+                                        .name(name).submit(NyxEffect.getInstance());
+                            }
                         }
 
                     }
@@ -284,6 +299,7 @@ public class Tools {
 
     public static void UserTaskRestart(Player player, String task, Boolean sendmsg) {
         UserTaskStop(player, task, sendmsg);
+
         UserTaskStart(player, task, sendmsg);
     }
 

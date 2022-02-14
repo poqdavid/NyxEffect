@@ -31,7 +31,6 @@ import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.command.args.CommandContext;
 import org.spongepowered.api.command.spec.CommandExecutor;
 import org.spongepowered.api.entity.living.player.Player;
-import org.spongepowered.api.scheduler.Task;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.format.TextColors;
 
@@ -49,12 +48,7 @@ public class ReloadCMD implements CommandExecutor {
 
             src.sendMessage(Text.of(TextColors.GOLD, "Stopping all Tasks!!"));
             for (Player player : Sponge.getServer().getOnlinePlayers()) {
-                for (Task task : Sponge.getScheduler().getScheduledTasks(NyxEffect.getInstance())) {
-                    if (task.getName().contains(player.getUniqueId().toString())) {
-                        NyxEffect.getInstance().getLogger().info("Stopping Task: " + task.getName());
-                        task.cancel();
-                    }
-                }
+                Tools.UserTaskStop(player, "all", false);
             }
             src.sendMessage(Text.of(TextColors.GOLD, "Stopped all Tasks!!"));
 
@@ -68,7 +62,7 @@ public class ReloadCMD implements CommandExecutor {
 
             src.sendMessage(Text.of(TextColors.GOLD, "Starting all Tasks!!"));
             for (Player player : Sponge.getServer().getOnlinePlayers()) {
-                NyxEffect.getInstance().StartPlayerrEffcts(player);
+                Tools.UserTaskStart(player, "all", false);
             }
             src.sendMessage(Text.of(TextColors.GOLD, "Started all Tasks!!"));
 
