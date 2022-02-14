@@ -30,8 +30,8 @@ import java.util.UUID;
 import java.util.function.Consumer;
 
 public class MovementDetectionTask implements Consumer<Task> {
-    private final NyxEffect cf;
-    private final Player playerobj;
+    private final UUID uuid;
+    private Player player;
     private Boolean taskran = false;
     private Task task;
 
@@ -41,34 +41,30 @@ public class MovementDetectionTask implements Consumer<Task> {
     private Vector3d rot1;
     private Vector3d rot2;
 
-    public MovementDetectionTask(Player player, NyxEffect cf) {
-        this.cf = cf;
-        this.playerobj = player;
+    public MovementDetectionTask(UUID uuid) {
+        this.uuid = uuid;
     }
 
     @Override
     public void accept(Task task) {
+        this.player = Sponge.getServer().getPlayer(uuid).orElse(player);
 
         if (!this.taskran) {
             this.task = task;
             this.taskran = true;
-            this.cf.getLogger().info("Starting Task: " + task.getName());
+            NyxEffect.getInstance().getLogger().info("Starting Task: " + task.getName());
         }
 
-
-        if (!this.cf.PlayerEvent.containsKey(this.playerobj.getUniqueId())) {
-            this.cf.getLogger().info("Stopping Task: " + task.getName());
-            this.task.cancel();
+        if (NyxEffect.getInstance().PlayerEvent.containsKey(this.player.getUniqueId()) && player.isOnline()) {
+            this.Run();
         } else {
-            this.Run(this.playerobj.getUniqueId());
+            NyxEffect.getInstance().getLogger().info("Stopping Task: " + task.getName());
+            this.task.cancel();
         }
-
     }
 
-    private void Run(UUID uuid) {
+    private void Run() {
         try {
-            Player player = Sponge.getServer().getPlayer(uuid).orElse(playerobj);
-
             this.loc1 = player.getLocation().getPosition();
             this.rot1 = player.getHeadRotation();
 

@@ -46,10 +46,7 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 public class Tools {
@@ -168,7 +165,7 @@ public class Tools {
             for (ParticlesData pdent : NyxEffect.getInstance().ParticlesLIST) {
 
                 if (pdent.getEffectsData().getId().equalsIgnoreCase(effectname)) {
-                    Task.builder().execute(new EffectTask(player, NyxEffect.getInstance(), pdent.getEffectsData().getParticleDataList()))
+                    Task.builder().execute(new EffectTask(player.getUniqueId(), pdent.getEffectsData().getParticleDataList()))
                             .async()
                             .interval(pdent.getEffectsData().getInterval(), TimeUnit.MILLISECONDS)
                             .name("TaskOwner: " + uuid + " Effect: " + pdent.getEffectsData().getId().toLowerCase()).submit(NyxEffect.getInstance());
@@ -183,7 +180,7 @@ public class Tools {
         final String uuid = player.getUniqueId().toString();
 
         if (!Tools.TaskAvilable(uuid, "MovementDetection")) {
-            Task.builder().execute(new MovementDetectionTask(player, NyxEffect.getInstance()))
+            Task.builder().execute(new MovementDetectionTask(player.getUniqueId()))
                     .async()
                     .interval(1000, TimeUnit.MILLISECONDS)
                     .name("TaskOwner: " + uuid + " MovementDetection").submit(NyxEffect.getInstance());
@@ -255,6 +252,13 @@ public class Tools {
 
     }
 
+    public static void UserTaskStop(String task, Boolean sendmsg) {
+        for (String uuid : NyxEffect.getInstance().UserParticlesLIST.keySet()) {
+            Optional<Player> optionalPlayer = Sponge.getServer().getPlayer(UUID.fromString(uuid));
+            optionalPlayer.ifPresent(player -> UserTaskStop(player, task, sendmsg));
+        }
+    }
+
     public static void UserTaskStart(Player player, String task, Boolean sendmsg) {
         if (sendmsg) {
             player.sendMessage(Text.of(TextColors.AQUA, "Starting task/s"));
@@ -271,7 +275,7 @@ public class Tools {
                         if (pdent.getEffectsData().getId().equalsIgnoreCase(effect)) {
                             String name = "TaskOwner: " + player.getUniqueId() + " Effect: " + pdent.getEffectsData().getId().toLowerCase();
                             if (TaskDoesNotExist(name)) {
-                                Task.builder().execute(new EffectTask(player, NyxEffect.getInstance(), pdent.getEffectsData().getParticleDataList()))
+                                Task.builder().execute(new EffectTask(player.getUniqueId(), pdent.getEffectsData().getParticleDataList()))
                                         .async()
                                         .interval(pdent.getEffectsData().getInterval(), TimeUnit.MILLISECONDS)
                                         .name(name).submit(NyxEffect.getInstance());
@@ -295,6 +299,17 @@ public class Tools {
             player.sendMessage(Text.of(TextColors.AQUA, "Started task/s"));
         }
 
+    }
+
+    public static void UserTaskStart(String task, Boolean sendmsg) {
+        for (String uuid : NyxEffect.getInstance().UserParticlesLIST.keySet()) {
+            Optional<Player> optionalPlayer = Sponge.getServer().getPlayer(UUID.fromString(uuid));
+            if (optionalPlayer.isPresent()) {
+                if (optionalPlayer.get().isOnline()) {
+                    UserTaskStart(optionalPlayer.get(), task, sendmsg);
+                }
+            }
+        }
     }
 
     public static void UserTaskRestart(Player player, String task, Boolean sendmsg) {

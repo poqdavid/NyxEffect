@@ -294,7 +294,7 @@ public class NyxEffect {
 
             this.permdescbuilder
                     .id(EffectPermission.COMMAND_MAIN)
-                    .description(Text.of("Allows the use of /cf, /NyxEffect"))
+                    .description(Text.of("Allows the use of /NyxEffect"))
                     .assign(PermissionDescription.ROLE_USER, true)
                     .assign(PermissionDescription.ROLE_STAFF, true)
                     .assign(PermissionDescription.ROLE_ADMIN, true)

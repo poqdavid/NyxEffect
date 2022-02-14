@@ -23,14 +23,12 @@ package io.github.poqdavid.nyx.nyxeffect.Commands;
 import io.github.poqdavid.nyx.nyxcore.Permissions.EffectPermission;
 import io.github.poqdavid.nyx.nyxeffect.NyxEffect;
 import io.github.poqdavid.nyx.nyxeffect.Utils.Tools;
-import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.command.CommandPermissionException;
 import org.spongepowered.api.command.CommandResult;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.command.args.CommandContext;
 import org.spongepowered.api.command.spec.CommandExecutor;
-import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.format.TextColors;
 
@@ -47,9 +45,7 @@ public class ReloadCMD implements CommandExecutor {
             NyxEffect.HOLDEFFECTS = true;
 
             src.sendMessage(Text.of(TextColors.GOLD, "Stopping all Tasks!!"));
-            for (Player player : Sponge.getServer().getOnlinePlayers()) {
-                Tools.UserTaskStop(player, "all", false);
-            }
+            Tools.UserTaskStop("all", false);
             src.sendMessage(Text.of(TextColors.GOLD, "Stopped all Tasks!!"));
 
             src.sendMessage(Text.of(TextColors.GOLD, "Loading Effects!!"));
@@ -60,10 +56,9 @@ public class ReloadCMD implements CommandExecutor {
             NyxEffect.getInstance().RegisterEffectNodes();
             src.sendMessage(Text.of(TextColors.GOLD, "Registered Effect Permission Nodes!!"));
 
+            NyxEffect.HOLDEFFECTS = false;
             src.sendMessage(Text.of(TextColors.GOLD, "Starting all Tasks!!"));
-            for (Player player : Sponge.getServer().getOnlinePlayers()) {
-                Tools.UserTaskStart(player, "all", false);
-            }
+            Tools.UserTaskStart("all", false);
             src.sendMessage(Text.of(TextColors.GOLD, "Started all Tasks!!"));
 
         } else {

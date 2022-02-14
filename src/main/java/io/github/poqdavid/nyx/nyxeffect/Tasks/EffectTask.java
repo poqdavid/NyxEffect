@@ -43,41 +43,38 @@ import java.util.UUID;
 import java.util.function.Consumer;
 
 public class EffectTask implements Consumer<Task> {
-    private final NyxEffect cf;
-    private final Player playerobj;
     private final List<ParticleDataList> pds_list;
+    private final UUID uuid;
+    private Player player;
     private Boolean taskran = false;
     private Task task;
     private Vector3d rotation = new Vector3d(0, 0, 0);
 
-    public EffectTask(Player player, NyxEffect cf, List<ParticleDataList> pds_list) {
-        this.cf = cf;
-        this.playerobj = player;
+    public EffectTask(UUID uuid, List<ParticleDataList> pds_list) {
+        this.uuid = uuid;
         this.pds_list = pds_list;
     }
 
     @Override
     public void accept(Task task) {
+        this.player = Sponge.getServer().getPlayer(uuid).orElse(player);
 
         if (!this.taskran) {
             this.task = task;
             this.taskran = true;
-            this.cf.getLogger().info("Starting Task: " + task.getName());
+            NyxEffect.getInstance().getLogger().info("Starting Task: " + task.getName());
         }
 
-
-        if (!this.cf.PlayerEvent.containsKey(this.playerobj.getUniqueId())) {
-            this.cf.getLogger().info("Stopping Task: " + task.getName());
-            this.task.cancel();
+        if (NyxEffect.getInstance().PlayerEvent.containsKey(this.player.getUniqueId()) && player.isOnline()) {
+            this.Run(this.pds_list);
         } else {
-            this.Run(playerobj.getUniqueId(), this.pds_list);
+            NyxEffect.getInstance().getLogger().info("Stopping Task: " + task.getName());
+            this.task.cancel();
         }
-
     }
 
-    private void Run(UUID uuid, List<ParticleDataList> pdslist) {
+    private void Run(List<ParticleDataList> pdslist) {
         try {
-            Player player = Sponge.getServer().getPlayer(uuid).orElse(playerobj);
             for (ParticleDataList pds : pdslist) {
                 Vector3d loc;
                 Vector3d playerR = player.getRotation();
