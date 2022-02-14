@@ -4,10 +4,11 @@
 NyxCore https://poqdavid.github.io/NyxCore/
 
 ## Commands
-	/nyxeffect <effect>
-	/nyxeffectlist <option>
+	/nyxeffect <effect> <player>
+	/nyxeffectlist <option(more / all)> 
 	/nyxeffectcheck <user>
 	/nyxeffectdisable <user>
+	/nyxeffect reload
 
 ## Premissions
     NyxCore.Effect.Command.Main
@@ -20,6 +21,7 @@ NyxCore https://poqdavid.github.io/NyxCore/
     NyxCore.Effect.Command.Task
     NyxCore.Effect.Command.List
     NyxCore.Effect.Command.TaskOther
+    NyxCore.Effect.Command.Reload
     NyxCore.Effect.Effects.<effectid>
 
 **Donate:**
