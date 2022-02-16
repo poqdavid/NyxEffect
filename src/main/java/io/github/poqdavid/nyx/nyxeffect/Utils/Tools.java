@@ -34,6 +34,7 @@ import io.github.poqdavid.nyx.nyxeffect.Utils.Data.ParticlesData;
 import io.github.poqdavid.nyx.nyxeffect.Utils.Data.PlayerData;
 import org.apache.commons.io.FileUtils;
 import org.spongepowered.api.Sponge;
+import org.spongepowered.api.block.BlockState;
 import org.spongepowered.api.block.BlockType;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.scheduler.Task;
@@ -319,12 +320,14 @@ public class Tools {
     }
 
     public static Location<World> getLocBelow(Player player, Location<World> loc) {
-        Location<World> locBelow = null;
         try {
             if (player.isOnGround()) {
                 for (int i = 0; i < 100; i++) {
-                    locBelow = loc.sub(0, i, 0);
-                    BlockType blockType = locBelow.getBlock().getType();
+                    Location<World> locBelow = loc.sub(0, i, 0);
+
+                    BlockState blockState = locBelow.createSnapshot().getState();
+                    BlockType blockType = blockState.getType();
+
                     if (blockType != null) {
                         if (!NyxEffect.getInstance().restricted_blocks.contains(blockType)) {
                             return locBelow;
@@ -332,9 +335,10 @@ public class Tools {
                     }
                 }
             }
-        } catch (Exception ignored) {
+        } catch (Exception ex) {
+            return null;
         }
 
-        return locBelow;
+        return null;
     }
 }

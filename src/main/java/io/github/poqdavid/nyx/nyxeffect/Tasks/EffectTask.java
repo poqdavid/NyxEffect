@@ -176,12 +176,12 @@ public class EffectTask implements Consumer<Task> {
             }
 
             if (effecttype.equalsIgnoreCase("block")) {
-                if (player.isOnGround()) {
+                if (player.isOnGround() && player.isLoaded()) {
                     try {
                         Location<World> locs = new Location<World>(player.getLocation().getExtent(), new Vector3d(loc.getX(), player.getLocation().getY(), loc.getZ()));
                         if (locs != null) {
                             Location<World> blockOn = Tools.getLocBelow(player, locs);
-                            if (blockOn != null) {                //blockOn.getBlockType() != BlockTypes.AIR && blockOn.getBlockType() != BlockTypes.WATER
+                            if (blockOn != null) {
                                 if (!NyxEffect.getInstance().restricted_blocks.contains(blockOn.getBlockType())) {
                                     final Vector3i loci = new Vector3i(blockOn.getX(), blockOn.getY(), blockOn.getZ());
 

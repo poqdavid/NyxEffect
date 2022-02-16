@@ -20,52 +20,46 @@
 
 package io.github.poqdavid.nyx.nyxeffect.Listeners;
 
-import io.github.poqdavid.nyx.nyxcore.Utils.CoreTools;
 import io.github.poqdavid.nyx.nyxeffect.NyxEffect;
 import io.github.poqdavid.nyx.nyxeffect.Utils.Tools;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.entity.DestructEntityEvent;
 import org.spongepowered.api.event.entity.SpawnEntityEvent;
+import org.spongepowered.api.event.filter.Getter;
+import org.spongepowered.api.event.filter.cause.Root;
 import org.spongepowered.api.event.network.ClientConnectionEvent;
 
 @SuppressWarnings("unused")
 public class NyxEffectListener {
 
     @Listener
-    public void onPlayerJoin(ClientConnectionEvent.Join event) {
+    public void onPlayerJoin(ClientConnectionEvent.Join event, @Root Player player) {
         if (!NyxEffect.HOLDEFFECTS) {
-            final Player player = CoreTools.getPlayer(event.getCause()).get();
             Tools.UserTaskStart(player, "all", false);
         }
     }
 
     @Listener
-    public void onEntitySpawn(SpawnEntityEvent event) {
+    public void onEntitySpawn(SpawnEntityEvent event, @Root Player player) {
         if (event.getCause().root() instanceof net.minecraft.entity.player.EntityPlayerMP) {
             if (!NyxEffect.HOLDEFFECTS) {
-                final Player player = (Player) event.getCause().root();
                 Tools.UserTaskRestart(player, "all", false);
             }
         }
     }
 
     @Listener
-    public void onPlayerDisconnect(ClientConnectionEvent.Disconnect event) {
+    public void onPlayerDisconnect(ClientConnectionEvent.Disconnect event, @Root Player player) {
         if (!NyxEffect.HOLDEFFECTS) {
-            final Player player = CoreTools.getPlayer(event.getCause()).get();
             Tools.UserTaskStop(player, "all", false);
         }
     }
 
     @Listener
-    public void onPlayerDeath(DestructEntityEvent.Death event) {
+    public void onPlayerDeath(DestructEntityEvent.Death event, @Getter("getTargetEntity") Player player) {
         if (!NyxEffect.HOLDEFFECTS) {
-            if (event.getTargetEntity() instanceof Player) {
-                final Player player = (Player) event.getTargetEntity();
-                Tools.UserTaskStop(player, "all", false);
-            }
+            Tools.UserTaskStop(player, "all", false);
         }
     }
-
 }
