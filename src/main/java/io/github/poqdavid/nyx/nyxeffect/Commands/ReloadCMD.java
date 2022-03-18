@@ -54,6 +54,7 @@ public class ReloadCMD implements CommandExecutor {
 
             src.sendMessage(Text.of(TextColors.GOLD, "Registering Effect Permission Nodes!!"));
             NyxEffect.getInstance().RegisterEffectNodes();
+            NyxEffect.getInstance().LoadEffectCMDs();
             src.sendMessage(Text.of(TextColors.GOLD, "Registered Effect Permission Nodes!!"));
 
             NyxEffect.HOLDEFFECTS = false;

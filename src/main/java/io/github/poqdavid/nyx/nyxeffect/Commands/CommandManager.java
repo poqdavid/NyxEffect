@@ -41,11 +41,13 @@ public class CommandManager {
     public static CommandSpec helpCmd;
     public static CommandSpec checkCmd;
     public static CommandSpec disableCmd;
+    public static CommandSpec effectCmd;
 
     public static CommandSpec mainCmd;
     public static CommandSpec taskCmd;
     public static CommandSpec reloadCmd;
     public static CommandSpec listCmd;
+    public static CommandSpec particlesCmd;
     private final Game game;
     private final NyxEffect ne;
 
@@ -66,40 +68,51 @@ public class CommandManager {
                 .executor(new ReloadCMD())
                 .build();
 
-        mainCmd = CommandSpec.builder()
-                .description(Text.of("To enable/disable magic particles"))
-                .arguments(GenericArguments.optional(GenericArguments.string(Text.of("effect"))), GenericArguments.optional(GenericArguments.playerOrSource(Text.of("player"))))
-                .executor(new MainCMD())
-                .child(helpCmd, HelpCMD.getAlias())
-                .child(reloadCmd, ReloadCMD.getAlias())
+        effectCmd = CommandSpec.builder()
+                .description(Text.of("/nyxeffect effect <effect> <player>"))
+                .arguments(GenericArguments.choices(Text.of("effect"), NyxEffect.EffectCMDs), GenericArguments.optional(GenericArguments.playerOrSource(Text.of("player"))))
+                .executor(new EffectCMD())
                 .build();
 
         checkCmd = CommandSpec.builder()
-                .description(Text.of("nyxeffectcheck your particles status - helpful to see what enabled"))
+                .description(Text.of("/nyxeffect check your particles status - helpful to see what enabled"))
                 .arguments(GenericArguments.firstParsing(GenericArguments.flags().buildWith(GenericArguments.firstParsing(GenericArguments.optional(GenericArguments.player(Text.of("target"))), GenericArguments.optional(GenericArguments.string(Text.of("targets")))))))
                 .executor(new CheckCMD()).build();
 
         disableCmd = CommandSpec.builder()
-                .description(Text.of("nyxeffectdisable disable your/other particles all of them"))
+                .description(Text.of("/nyxeffect disable disable your/other particles all of them"))
                 .arguments(GenericArguments.firstParsing(GenericArguments.flags().buildWith(GenericArguments.firstParsing(GenericArguments.optional(GenericArguments.player(Text.of("target"))), GenericArguments.optional(GenericArguments.string(Text.of("targets")))))))
                 .executor(new DisableCMD()).build();
 
 
         taskCmd = CommandSpec.builder()
-                .description(Text.of("To restart/stop/start effect tasks"))
+                .description(Text.of("/nyxeffect task To restart/stop/start effect tasks"))
                 .arguments(GenericArguments.optional(GenericArguments.string(Text.of("task"))), GenericArguments.optional(GenericArguments.string(Text.of("action"))), GenericArguments.optional(GenericArguments.playerOrSource(Text.of("player"))))
                 .executor(new TaskCMD()).build();
 
         listCmd = CommandSpec.builder()
-                .description(Text.of("Shows you a list of effects"))
+                .description(Text.of("/nyxeffect list Shows you a list of effects"))
                 .arguments(GenericArguments.optional(GenericArguments.string(Text.of("option"))))
                 .executor(new ListCMD()).build();
 
-        Sponge.getCommandManager().register(ne, mainCmd, "nyxeffect");
+        particlesCmd = CommandSpec.builder()
+                .description(Text.of("/nyxeffect particles Gives you a list of particles"))
+                .executor(new ParticlesCMD())
+                .build();
 
-        Sponge.getCommandManager().register(ne, checkCmd, "nyxeffectcheck");
-        Sponge.getCommandManager().register(ne, disableCmd, "nyxeffectdisable");
-        Sponge.getCommandManager().register(ne, taskCmd, "nyxeffecttask");
-        Sponge.getCommandManager().register(ne, listCmd, "nyxeffectlist");
+        mainCmd = CommandSpec.builder()
+                .description(Text.of("/nyxeffect help"))
+                .executor(new MainCMD())
+                .child(helpCmd, HelpCMD.getAlias())
+                .child(reloadCmd, ReloadCMD.getAlias())
+                .child(effectCmd, EffectCMD.getAlias())
+                .child(checkCmd, CheckCMD.getAlias())
+                .child(disableCmd, DisableCMD.getAlias())
+                .child(listCmd, ListCMD.getAlias())
+                .child(taskCmd, TaskCMD.getAlias())
+                .child(particlesCmd, ParticlesCMD.getAlias())
+                .build();
+
+        Sponge.getCommandManager().register(ne, mainCmd, "nyxeffect");
     }
 }

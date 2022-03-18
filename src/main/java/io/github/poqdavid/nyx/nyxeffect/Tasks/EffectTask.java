@@ -23,10 +23,15 @@ package io.github.poqdavid.nyx.nyxeffect.Tasks;
 import com.flowpowered.math.imaginary.Quaterniond;
 import com.flowpowered.math.vector.Vector3d;
 import com.flowpowered.math.vector.Vector3i;
+import com.pixelmonmod.pixelmon.api.world.ParticleArcaneryDispatcher;
+import com.pixelmonmod.pixelmon.client.particle.Particles;
 import io.github.poqdavid.nyx.nyxcore.Utils.CoreTools;
 import io.github.poqdavid.nyx.nyxeffect.NyxEffect;
 import io.github.poqdavid.nyx.nyxeffect.Utils.Data.ParticleDataList;
 import io.github.poqdavid.nyx.nyxeffect.Utils.Tools;
+import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.util.EnumParticleTypes;
+import net.minecraft.util.math.BlockPos;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.block.BlockState;
 import org.spongepowered.api.data.key.Keys;
@@ -38,6 +43,7 @@ import org.spongepowered.api.util.Color;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Consumer;
@@ -100,18 +106,18 @@ public class EffectTask implements Consumer<Task> {
 
                 if (pds.getParticleEffect().getEvent().equalsIgnoreCase("onmove")) {
                     if (NyxEffect.getInstance().PlayerEvent.get(player.getUniqueId()).getOnmove()) {
-                        spawnEffects(player, pds.getParticleEffect().getType(), pds.getParticleEffect().getData(), loc, pds.getParticleEffect().getcleartime());
+                        spawnEffects(player, pds.getParticleEffect().getType(), pds.getParticleEffect().getData(), loc, pds.getParticleEffect().getcleartime(), pds.getParticleEffect().getNumberOfParticles(), pds.getParticleEffect().getParticleSpeed());
                     }
                 }
 
                 if (pds.getParticleEffect().getEvent().equalsIgnoreCase("onstop")) {
                     if (!NyxEffect.getInstance().PlayerEvent.get(player.getUniqueId()).getOnmove()) {
-                        spawnEffects(player, pds.getParticleEffect().getType(), pds.getParticleEffect().getData(), loc, pds.getParticleEffect().getcleartime());
+                        spawnEffects(player, pds.getParticleEffect().getType(), pds.getParticleEffect().getData(), loc, pds.getParticleEffect().getcleartime(), pds.getParticleEffect().getNumberOfParticles(), pds.getParticleEffect().getParticleSpeed());
                     }
                 }
 
                 if (pds.getParticleEffect().getEvent().equalsIgnoreCase("always")) {
-                    spawnEffects(player, pds.getParticleEffect().getType(), pds.getParticleEffect().getData(), loc, pds.getParticleEffect().getcleartime());
+                    spawnEffects(player, pds.getParticleEffect().getType(), pds.getParticleEffect().getData(), loc, pds.getParticleEffect().getcleartime(), pds.getParticleEffect().getNumberOfParticles(), pds.getParticleEffect().getParticleSpeed());
                 }
 
             }
@@ -121,7 +127,8 @@ public class EffectTask implements Consumer<Task> {
 
     }
 
-    private void spawnEffects(Player player, String effecttype, String effectdata, Vector3d loc, long cleartime) {
+    private void spawnEffects(Player player, String effecttype, String effectdata, Vector3d loc, long cleartime, int numberofparticles, double particleSpeed) {
+        EntityPlayerMP ePlayer = (EntityPlayerMP) player;
         if (!player.get(Keys.VANISH).filter(value -> value).isPresent()) {
             if (effecttype.equalsIgnoreCase("timer")) {
                 try {
@@ -138,20 +145,42 @@ public class EffectTask implements Consumer<Task> {
             if (effecttype.equalsIgnoreCase("particle")) {
                 if (loc != null) {
                     final String data = effectdata;
+                    int worldID = ePlayer.dimension;
                     String id = "NONE";
+
+                    String[] colorData = new String[3];
+                    String[] offsetData = new String[3];
+                    String[] pixelmonData = new String[4];
+                    String[] elecData = new String[10];
+                    colorData[0] = "NONE";
+                    offsetData[0] = "NONE";
+                    pixelmonData[0] = "NONE";
+                    elecData[0] = "NONE";
+
+                    Color colors = Color.BLACK;
+                    Vector3d offset = new Vector3d(0.0, 0.0, 0.0);
+                    Vector3d motion = new Vector3d(0.0, 0.0, 0.0);
+                    Object[] elecArgs = new Object[]{1, true, 1.0f, 1.0f, 1.0f, 1.0f, 238.0f, 75.0f, 43.0f, 1.0f};
+                    float size = 1;
+
                     if (data.contains(";")) {
                         final String[] datas = data.replace(" ", "").split(";");
 
-                        String[] colorData = new String[3];
-                        colorData[0] = "NONE";
-                        Color colors = Color.BLACK;
                         for (String datax : datas) {
                             if (datax.contains("minecraft:")) {
                                 id = datax;
                             }
 
-                            if (datax.contains("Color")) {
-                                colorData = datax.replace("Color{", "").replace("}", "").replace("red=", "").replace("green=", "").replace("blue=", "").split(",").clone();
+                            if (datax.contains("sponge:")) {
+                                id = datax;
+                            }
+
+                            if (datax.contains("pixelmon:")) {
+                                id = datax;
+                            }
+
+                            if (datax.toLowerCase().contains("color")) {
+                                colorData = datax.toLowerCase().replace("color{", "").replace("}", "").replace("red=", "").replace("green=", "").replace("blue=", "").split(",").clone();
 
                                 final int red = Integer.parseInt(colorData[0]);
                                 final int green = Integer.parseInt(colorData[1]);
@@ -159,18 +188,83 @@ public class EffectTask implements Consumer<Task> {
                                 colors = Color.ofRgb(red, green, blue);
                             }
 
+                            if (datax.toLowerCase().contains("offset")) {
+                                offsetData = datax.toLowerCase().replace("offset{", "").replace("}", "").replace("x=", "").replace("y=", "").replace("z=", "").split(",").clone();
+
+                                offset = new Vector3d(Double.parseDouble(offsetData[0]), Double.parseDouble(offsetData[1]), Double.parseDouble(offsetData[2]));
+                            }
+
+                            if (datax.toLowerCase().contains("pixelmonoptions")) {
+                                pixelmonData = datax.toLowerCase().replace("pixelmonoptions{", "").replace("}", "").replace("motionx=", "").replace("motiony=", "").replace("motionz=", "").replace("floatsize=", "").split(",").clone();
+
+                                motion = new Vector3d(Double.parseDouble(pixelmonData[0]), Double.parseDouble(pixelmonData[1]), Double.parseDouble(pixelmonData[2]));
+                                size = Float.parseFloat(pixelmonData[3]);
+                            }
+
+                            if (datax.toLowerCase().contains("electricoptions")) {
+                                elecData = datax.toLowerCase().replace("electricoptions{", "").replace("}", "").replace("age=", "").replace("parent=", "").replace("pitch=", "").replace("yaw=", "")
+                                        .replace("velocity=", "").replace("innaccuracy=", "").replace("r=", "").replace("g=", "").replace("b=", "").replace("a=", "").split(",").clone();
+
+                                elecArgs[0] = Integer.parseInt(elecData[0]); // int age
+                                elecArgs[1] = Boolean.parseBoolean(elecData[1]); // boolean parent
+                                elecArgs[2] = Float.parseFloat(elecData[2]); // float pitch
+                                elecArgs[3] = Float.parseFloat(elecData[3]); // float yaw
+                                elecArgs[4] = Float.parseFloat(elecData[4]); // float velocity
+                                elecArgs[5] = Float.parseFloat(elecData[5]); // float innaccuracy
+                                elecArgs[6] = Float.parseFloat(elecData[6]); // float r
+                                elecArgs[7] = Float.parseFloat(elecData[7]); // float g
+                                elecArgs[8] = Float.parseFloat(elecData[8]); // float b
+                                elecArgs[9] = Float.parseFloat(elecData[9]); // float a / 1.0f
+                            }
                         }
-
-                        if (!colorData[0].equals("NONE")) {
-
-                            player.getWorld().spawnParticles(ParticleEffect.builder().type(CoreTools.GetParticleType(id)).option(ParticleOptions.COLOR, colors).build(), loc);
-                        } else {
-                            player.getWorld().spawnParticles(ParticleEffect.builder().type(CoreTools.GetParticleType(id)).build(), loc);
-                        }
-
                     } else {
                         id = data;
-                        player.getWorld().spawnParticles(ParticleEffect.builder().type(CoreTools.GetParticleType(id)).build(), loc);
+                    }
+
+                    if (id.contains("minecraft:")) {
+                        if (id.equals("minecraft:ender_teleport")) {
+                            ePlayer.getServerWorld().playEvent(2003, new BlockPos(loc.getX(), loc.getY(), loc.getZ()), 0);
+                        } else {
+                            EnumParticleTypes enumParticleTypes = EnumParticleTypes.getByName(id.replace("minecraft:", ""));
+                            if (enumParticleTypes != null) {
+                                ePlayer.getServerWorld().spawnParticle(enumParticleTypes, loc.getX(), loc.getY(), loc.getZ(), numberofparticles, offset.getX(), offset.getY(), offset.getZ(), particleSpeed);
+                            }
+                        }
+                    }
+
+                    if (id.contains("sponge:")) {
+                        if (!colorData[0].equals("NONE")) {
+                            player.getWorld().spawnParticles(ParticleEffect.builder().type(CoreTools.GetParticleType(id.replace("sponge:", "minecraft:"))).option(ParticleOptions.COLOR, colors).build(), loc);
+                        } else {
+                            player.getWorld().spawnParticles(ParticleEffect.builder().type(CoreTools.GetParticleType(id.replace("sponge:", "minecraft:"))).build(), loc);
+                        }
+                    }
+
+                    if (id.contains("pixelmon:") && NyxEffect.getInstance().pixelmon) {
+
+                        //Thanks to Varijon @ GitHub https://github.com/Varijon for helping me with spawning particles using Forge and Pixelmon also allowing me to use part of her code.
+                        if (id.equalsIgnoreCase("pixelmon:shiny")) {
+                            ArrayList<Double> argList1 = new ArrayList<Double>();
+                            argList1.add(offset.getX());
+                            argList1.add(offset.getY());
+                            argList1.add(offset.getZ());
+                            for (int x = numberofparticles; x > 0; x--) {
+                                ParticleArcaneryDispatcher.dispatchToDimension(worldID, 50, loc.getX(), loc.getY(), loc.getZ(), motion.getX(), motion.getY(), motion.getZ(), size, Particles.Shiny, argList1.toArray());
+                            }
+                        }
+
+                        if (id.equalsIgnoreCase("pixelmon:bluemagic")) {
+                            for (int x = numberofparticles; x > 0; x--) {
+                                ParticleArcaneryDispatcher.dispatchToDimension(worldID, 50, loc.getX(), loc.getY(), loc.getZ(), motion.getX(), motion.getY(), motion.getZ(), size, Particles.BlueMagic);
+                            }
+                        }
+
+                        if (id.equalsIgnoreCase("pixelmon:electric")) {
+                            for (int x = numberofparticles; x > 0; x--) {
+                                ParticleArcaneryDispatcher.dispatchToDimension(worldID, 50, loc.getX(), loc.getY(), loc.getZ(), motion.getX(), motion.getY(), motion.getZ(), size, Particles.Electric, elecArgs);
+                            }
+                        }
+
                     }
                 }
             }
@@ -192,9 +286,8 @@ public class EffectTask implements Consumer<Task> {
                             }
                         }
                     } catch (Exception e) {
+                        //ignore
                     }
-
-
                 }
             }
         }

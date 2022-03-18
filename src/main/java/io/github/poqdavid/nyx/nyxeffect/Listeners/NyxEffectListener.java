@@ -43,8 +43,12 @@ public class NyxEffectListener {
     @Listener
     public void onEntitySpawn(SpawnEntityEvent event, @Root Player player) {
         if (event.getCause().root() instanceof net.minecraft.entity.player.EntityPlayerMP) {
-            if (!NyxEffect.HOLDEFFECTS) {
-                Tools.UserTaskRestart(player, "all", false);
+            if (!event.getEntities().isEmpty()) {
+                if (event.getEntities().get(0) instanceof net.minecraft.entity.player.EntityPlayerMP) {
+                    if (!NyxEffect.HOLDEFFECTS) {
+                        Tools.UserTaskRestart(player, "all", false);
+                    }
+                }
             }
         }
     }

@@ -9,10 +9,11 @@ A plugin for crazy cool effects.
 NyxCore https://poqdavid.github.io/NyxCore/
 
 ## Commands
-	/nyxeffect <effect> <player>
-	/nyxeffectlist <option(more / all)> 
-	/nyxeffectcheck <user>
-	/nyxeffectdisable <user>
+	/nyxeffect effect <effect> <player>
+	/nyxeffect list <option(more / all)> 
+	/nyxeffect check <user>
+	/nyxeffect disable <user>
+	/nyxeffect particles
     /nyxeffect reload
 
 ## Premissions
@@ -27,7 +28,10 @@ NyxCore https://poqdavid.github.io/NyxCore/
     NyxCore.Effect.Command.List
     NyxCore.Effect.Command.TaskOther
     NyxCore.Effect.Command.Reload
+    NyxCore.Effect.Command.Particles
     NyxCore.Effect.Effects.<effectid>
+
+Thanks to [Varijon @ GitHub](https://github.com/Varijon) for helping me with spawning particles using Forge and Pixelmon also allowing me to use part of her code.
 
 **Donate:**
 <br/>**BTC Legacy:** 1Q2JQG3iCLZPT2iJfDLow1oQVGKmxheoAh

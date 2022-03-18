@@ -40,6 +40,10 @@ import java.util.Optional;
 
 public class CheckCMD implements CommandExecutor {
 
+    public static String[] getAlias() {
+        return new String[]{"check"};
+    }
+
     public CommandResult execute(CommandSource sender, CommandContext args) throws CommandException {
         final Optional<Player> target = args.getOne("target");
         final Optional<String> targets = args.getOne("targets");
@@ -56,7 +60,7 @@ public class CheckCMD implements CommandExecutor {
                     for (String effect : pd) {
                         try {
                             final EffectsData ed = Tools.GetEffect(effect);
-                            final Text texts = Text.builder(ed.getName() + " (" + ed.getId() + ")").color(TextColors.GRAY).onHover(TextActions.showText(Text.of("/nyxeffect " + ed.getId()))).onClick(TextActions.runCommand("/nyxeffect " + ed.getId())).build();
+                            final Text texts = Text.builder(ed.getName() + " (" + ed.getId() + ")").color(TextColors.GRAY).onHover(TextActions.showText(Text.of("/nyxeffect effect " + ed.getId()))).onClick(TextActions.runCommand("/nyxeffect effect " + ed.getId())).build();
                             player.sendMessage(Text.of(TextColors.GOLD, "- ", texts));
                         } catch (Exception e) {
 
@@ -77,7 +81,7 @@ public class CheckCMD implements CommandExecutor {
                     for (String effect : pd) {
                         try {
                             final EffectsData ed = Tools.GetEffect(effect);
-                            final Text texts = Text.builder(ed.getName() + " (" + ed.getId() + ")").color(TextColors.GRAY).onHover(TextActions.showText(Text.of("/nyxeffect " + ed.getId() + " " + targ.getName()))).onClick(TextActions.runCommand("/nyxeffect " + ed.getId() + " " + targ.getName())).build();
+                            final Text texts = Text.builder(ed.getName() + " (" + ed.getId() + ")").color(TextColors.GRAY).onHover(TextActions.showText(Text.of("/nyxeffect effect " + ed.getId() + " " + targ.getName()))).onClick(TextActions.runCommand("/nyxeffect effect " + ed.getId() + " " + targ.getName())).build();
                             sender.sendMessage(Text.of(TextColors.GOLD, "- ", texts));
                         } catch (Exception e) {
 

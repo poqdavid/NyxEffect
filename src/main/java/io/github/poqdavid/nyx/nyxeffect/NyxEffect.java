@@ -31,6 +31,7 @@ import io.github.poqdavid.nyx.nyxeffect.Utils.Data.EffectsData;
 import io.github.poqdavid.nyx.nyxeffect.Utils.Data.ParticlesData;
 import io.github.poqdavid.nyx.nyxeffect.Utils.Data.PlayerData;
 import io.github.poqdavid.nyx.nyxeffect.Utils.Tools;
+import net.minecraftforge.fml.common.Loader;
 import org.bstats.sponge.Metrics;
 import org.slf4j.Logger;
 import org.spongepowered.api.Game;
@@ -63,10 +64,11 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 
-@Plugin(id = "nyxeffect", name = "@name@", version = "@version@", description = "@description@", url = "https://github.com/poqdavid/NyxEffect", authors = {"@authors@"}, dependencies = {@Dependency(id = "nyxcore", version = "1.+", optional = false)})
+@Plugin(id = "nyxeffect", name = "@name@", version = "@version@", description = "@description@", url = "https://github.com/poqdavid/NyxEffect", authors = {"@authors@"}, dependencies = {@Dependency(id = "nyxcore", version = "1.+", optional = false), @Dependency(id = "pixelmon", version = "8.3.+", optional = true)})
 public class NyxEffect {
 
     public static boolean HOLDEFFECTS = false;
+    public static Map<String, String> EffectCMDs = new HashMap<>();
     private static NyxEffect NyxEffect;
     public final Path particlesdatapath;
     private final NCLogger logger;
@@ -82,6 +84,7 @@ public class NyxEffect {
     public List<String> blockedPixelmonBlocks;
     public PermissionService permservice;
     public PermissionDescription.Builder permdescbuilder;
+    public boolean pixelmon = false;
     private Path configfullpath;
     @Inject
     private Game game;
@@ -357,6 +360,7 @@ public class NyxEffect {
                     .register();
 
             RegisterEffectNodes();
+            LoadEffectCMDs();
         }
 
         try {
@@ -495,6 +499,11 @@ public class NyxEffect {
 
         NyxEffectListener listener = new NyxEffectListener();
         Sponge.getEventManager().registerListeners(this, listener);
+
+        if (Loader.isModLoaded("pixelmon")) {
+            this.pixelmon = true;
+            this.logger.info("Pixelmon detected!");
+        }
 
         this.logger.info("Plugin Initialized successfully!");
     }
@@ -646,7 +655,16 @@ public class NyxEffect {
                 this.logger.info("Effect node: " + EffectPermission.EFFECTS + "." + effect.getEffectsData().getId());
             }
         }
-
     }
 
+    public void LoadEffectCMDs() {
+        if (this.ParticlesLIST != null) {
+            EffectCMDs.clear();
+            for (ParticlesData effect : this.ParticlesLIST) {
+                EffectCMDs.put(effect.getEffectsData().getId(), effect.getEffectsData().getId());
+
+            }
+        }
+
+    }
 }

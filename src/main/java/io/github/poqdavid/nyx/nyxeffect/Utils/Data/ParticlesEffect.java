@@ -51,6 +51,14 @@ public class ParticlesEffect implements Serializable {
     @Expose
     private long cleartime;
 
+    @SerializedName("numberofparticles")
+    @Expose
+    private int numberofparticles = 1;
+
+    @SerializedName("particlespeed")
+    @Expose
+    private double particlespeed = 0.0;
+
     @SerializedName("data")
     @Expose
     private String data;
@@ -69,13 +77,15 @@ public class ParticlesEffect implements Serializable {
      * @param cleartime
      * @param type
      */
-    public ParticlesEffect(String type, String event, Boolean relatedlocation, Boolean relatedrotation, long cleartime, String data) {
+    public ParticlesEffect(String type, String event, Boolean relatedlocation, Boolean relatedrotation, long cleartime, int numberofparticles, double particlespeed, String data) {
         super();
         this.type = type;
         this.event = event;
         this.relatedlocation = relatedlocation;
         this.relatedrotation = relatedrotation;
         this.cleartime = cleartime;
+        this.numberofparticles = numberofparticles;
+        this.particlespeed = particlespeed;
         this.data = data;
     }
 
@@ -141,6 +151,33 @@ public class ParticlesEffect implements Serializable {
 
     public ParticlesEffect withcleartime(long cleartime) {
         this.cleartime = cleartime;
+        return this;
+    }
+
+    public int getNumberOfParticles() {
+        return numberofparticles;
+    }
+
+    public void setNumberOfParticles(int numberofparticles) {
+        this.numberofparticles = numberofparticles;
+    }
+
+    public ParticlesEffect withNumberOfParticles(int numberofparticles) {
+        this.numberofparticles = numberofparticles;
+        return this;
+    }
+
+
+    public double getParticleSpeed() {
+        return particlespeed;
+    }
+
+    public void setParticleSpeed(double particlespeed) {
+        this.particlespeed = particlespeed;
+    }
+
+    public ParticlesEffect withParticleSpeed(double particlespeed) {
+        this.particlespeed = particlespeed;
         return this;
     }
 

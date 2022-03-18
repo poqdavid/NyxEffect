@@ -137,6 +137,7 @@ dependencies {
 
     implementation("javax.validation:validation-api:2.0.1.Final")
     implementation group: 'commons-io', name: 'commons-io', version: '2.6'
+    compile fileTree(dir: 'libs', include: '*.jar')
 
     implementation 'io.github.poqdavid.nyx:NyxCore'
 }

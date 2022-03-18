@@ -39,6 +39,10 @@ import org.spongepowered.api.text.format.TextStyles;
 import java.util.List;
 
 public class ListCMD implements CommandExecutor {
+    public static String[] getAlias() {
+        return new String[]{"list"};
+    }
+
     public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
         final String option = args.<String>getOne("option").orElse("*");
 
@@ -57,12 +61,12 @@ public class ListCMD implements CommandExecutor {
 
                         try {
                             if (pd_player.contains(effect.getEffectsData().getId())) {
-                                texts = Text.builder(effect.getEffectsData().getName() + " (" + effect.getEffectsData().getId() + ")").style(TextStyles.BOLD).color(TextColors.GREEN).onHover(TextActions.showText(Text.of("/nyxeffect " + effect.getEffectsData().getId()))).onClick(TextActions.runCommand("/nyxeffect " + effect.getEffectsData().getId())).build();
+                                texts = Text.builder(effect.getEffectsData().getName() + " (" + effect.getEffectsData().getId() + ")").style(TextStyles.BOLD).color(TextColors.GREEN).onHover(TextActions.showText(Text.of("/nyxeffect effect " + effect.getEffectsData().getId()))).onClick(TextActions.runCommand("/nyxeffect effect " + effect.getEffectsData().getId())).build();
                             } else {
-                                texts = Text.builder(effect.getEffectsData().getName() + " (" + effect.getEffectsData().getId() + ")").style(TextStyles.BOLD).color(TextColors.GRAY).onHover(TextActions.showText(Text.of("/nyxeffect " + effect.getEffectsData().getId()))).onClick(TextActions.runCommand("/nyxeffect " + effect.getEffectsData().getId())).build();
+                                texts = Text.builder(effect.getEffectsData().getName() + " (" + effect.getEffectsData().getId() + ")").style(TextStyles.BOLD).color(TextColors.GRAY).onHover(TextActions.showText(Text.of("/nyxeffect effect " + effect.getEffectsData().getId()))).onClick(TextActions.runCommand("/nyxeffect effect " + effect.getEffectsData().getId())).build();
                             }
                         } catch (Exception ex) {
-                            texts = Text.builder(effect.getEffectsData().getName() + " (" + effect.getEffectsData().getId() + ")").style(TextStyles.BOLD).color(TextColors.GRAY).onHover(TextActions.showText(Text.of("/nyxeffect " + effect.getEffectsData().getId()))).onClick(TextActions.runCommand("/nyxeffect " + effect.getEffectsData().getId())).build();
+                            texts = Text.builder(effect.getEffectsData().getName() + " (" + effect.getEffectsData().getId() + ")").style(TextStyles.BOLD).color(TextColors.GRAY).onHover(TextActions.showText(Text.of("/nyxeffect effect " + effect.getEffectsData().getId()))).onClick(TextActions.runCommand("/nyxeffect effect " + effect.getEffectsData().getId())).build();
 
                         }
 
@@ -91,9 +95,9 @@ public class ListCMD implements CommandExecutor {
                     if (src.hasPermission(effectperm)) {
                         Text texts;
                         if (pd_player.contains(effect.getEffectsData().getId())) {
-                            texts = Text.builder(effect.getEffectsData().getName() + " (" + effect.getEffectsData().getId() + ")").style(TextStyles.BOLD).color(TextColors.GREEN).onHover(TextActions.showText(Text.of("/nyxeffect " + effect.getEffectsData().getId()))).onClick(TextActions.runCommand("/nyxeffect " + effect.getEffectsData().getId())).build();
+                            texts = Text.builder(effect.getEffectsData().getName() + " (" + effect.getEffectsData().getId() + ")").style(TextStyles.BOLD).color(TextColors.GREEN).onHover(TextActions.showText(Text.of("/nyxeffect effect " + effect.getEffectsData().getId()))).onClick(TextActions.runCommand("/nyxeffect effect " + effect.getEffectsData().getId())).build();
                         } else {
-                            texts = Text.builder(effect.getEffectsData().getName() + " (" + effect.getEffectsData().getId() + ")").style(TextStyles.BOLD).color(TextColors.GRAY).onHover(TextActions.showText(Text.of("/nyxeffect " + effect.getEffectsData().getId()))).onClick(TextActions.runCommand("/nyxeffect " + effect.getEffectsData().getId())).build();
+                            texts = Text.builder(effect.getEffectsData().getName() + " (" + effect.getEffectsData().getId() + ")").style(TextStyles.BOLD).color(TextColors.GRAY).onHover(TextActions.showText(Text.of("/nyxeffect effect " + effect.getEffectsData().getId()))).onClick(TextActions.runCommand("/nyxeffect effect " + effect.getEffectsData().getId())).build();
                         }
 
                         src.sendMessage(Text.of(TextColors.GOLD, "- ", texts));

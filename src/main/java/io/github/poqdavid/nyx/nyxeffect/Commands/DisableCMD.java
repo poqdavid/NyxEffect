@@ -34,6 +34,10 @@ import java.util.Optional;
 
 public class DisableCMD implements CommandExecutor {
 
+    public static String[] getAlias() {
+        return new String[]{"disable"};
+    }
+
     public CommandResult execute(CommandSource sender, CommandContext args) {
         final Optional<Player> target = args.getOne("target");
 

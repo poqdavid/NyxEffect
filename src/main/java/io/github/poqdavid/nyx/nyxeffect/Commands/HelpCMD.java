@@ -63,10 +63,10 @@ public class HelpCMD implements CommandExecutor {
                     .contents(
                             Text.of(TextColors.BLUE, TextStyles.ITALIC, ""),
                             Text.of(TextColors.GREEN, TextStyles.BOLD, "Commands"),
-                            Text.of("§6- /§7nyxeffect §6<§7effect§6>"),
-                            Text.of("§6- /§7nyxeffectlist §6<§7option(more / all)§6>"),
-                            Text.of("§6- /§7nyxeffectcheck §6<§7user§6>"),
-                            Text.of("§6- /§7nyxeffectdisable §6<§7user§6>")
+                            Text.of("§6- /§7nyxeffect effect §6<§7effect§6> §6<§7player§6>"),
+                            Text.of("§6- /§7nyxeffect list §6<§7option(more / all)§6>"),
+                            Text.of("§6- /§7nyxeffect check §6<§7user§6>"),
+                            Text.of("§6- /§7nyxeffect disable §6<§7user§6>")
                     )
                     .padding(Text.of("="))
                     .sendTo(src);
