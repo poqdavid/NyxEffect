@@ -112,6 +112,16 @@ repositories {
         name = "CodeMC"
         url = "https://repo.codemc.org/repository/maven-public"
     }
+    ivy {
+        name = 'Pixelmon Reforged'
+        url "https://download.nodecdn.net/containers/reforged/server/release"
+        metadataSources {
+            artifact()
+        }
+        patternLayout {
+            artifact "[revision]/[artifact].[ext]"
+        }
+    }
 }
 
 configurations {
@@ -137,7 +147,8 @@ dependencies {
 
     implementation("javax.validation:validation-api:2.0.1.Final")
     implementation group: 'commons-io', name: 'commons-io', version: '2.6'
-    compile fileTree(dir: 'libs', include: '*.jar')
+
+    compileOnly "pixelmon:Pixelmon-1.12.2-${getProjectProperty('pixelmonVersion')}-server:${getProjectProperty('pixelmonVersion')}"
 
     implementation 'io.github.poqdavid.nyx:NyxCore'
 }

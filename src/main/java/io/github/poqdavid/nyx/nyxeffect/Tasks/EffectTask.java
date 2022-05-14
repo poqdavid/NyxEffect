@@ -51,27 +51,29 @@ import java.util.function.Consumer;
 public class EffectTask implements Consumer<Task> {
     private final List<ParticleDataList> pds_list;
     private final UUID uuid;
-    private Player player;
-    private Boolean taskran = false;
+    public Boolean taskStop = false;
     private Task task;
+    private Player player;
     private Vector3d rotation = new Vector3d(0, 0, 0);
+    private Boolean taskRan = false;
 
     public EffectTask(UUID uuid, List<ParticleDataList> pds_list) {
         this.uuid = uuid;
         this.pds_list = pds_list;
+        this.taskStop = false;
     }
 
     @Override
     public void accept(Task task) {
         this.player = Sponge.getServer().getPlayer(uuid).orElse(player);
 
-        if (!this.taskran) {
+        if (!this.taskRan) {
             this.task = task;
-            this.taskran = true;
+            this.taskRan = true;
             NyxEffect.getInstance().getLogger().info("Starting Task: " + task.getName());
         }
 
-        if (NyxEffect.getInstance().PlayerEvent.containsKey(this.player.getUniqueId()) && player.isOnline()) {
+        if (NyxEffect.getInstance().PlayerEvent.containsKey(this.player.getUniqueId()) && player.isOnline() && !this.taskStop) {
             this.Run(this.pds_list);
         } else {
             NyxEffect.getInstance().getLogger().info("Stopping Task: " + task.getName());

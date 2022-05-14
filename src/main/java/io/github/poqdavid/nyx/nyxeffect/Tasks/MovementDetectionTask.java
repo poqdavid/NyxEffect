@@ -31,10 +31,10 @@ import java.util.function.Consumer;
 
 public class MovementDetectionTask implements Consumer<Task> {
     private final UUID uuid;
+    public Boolean taskStop = false;
     private Player player;
     private Boolean taskran = false;
     private Task task;
-
     private Vector3d loc1;
     private Vector3d loc2;
 
@@ -55,7 +55,7 @@ public class MovementDetectionTask implements Consumer<Task> {
             NyxEffect.getInstance().getLogger().info("Starting Task: " + task.getName());
         }
 
-        if (NyxEffect.getInstance().PlayerEvent.containsKey(this.player.getUniqueId()) && player.isOnline()) {
+        if (NyxEffect.getInstance().PlayerEvent.containsKey(this.player.getUniqueId()) && player.isOnline() && !this.taskStop) {
             this.Run();
         } else {
             NyxEffect.getInstance().getLogger().info("Stopping Task: " + task.getName());

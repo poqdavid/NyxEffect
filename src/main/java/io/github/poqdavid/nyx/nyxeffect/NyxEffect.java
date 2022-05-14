@@ -24,9 +24,12 @@ import com.google.inject.Inject;
 import io.github.poqdavid.nyx.nyxcore.NyxCore;
 import io.github.poqdavid.nyx.nyxcore.Permissions.EffectPermission;
 import io.github.poqdavid.nyx.nyxcore.Utils.CText;
+import io.github.poqdavid.nyx.nyxcore.Utils.CoreTools;
 import io.github.poqdavid.nyx.nyxcore.Utils.NCLogger;
 import io.github.poqdavid.nyx.nyxeffect.Commands.CommandManager;
 import io.github.poqdavid.nyx.nyxeffect.Listeners.NyxEffectListener;
+import io.github.poqdavid.nyx.nyxeffect.Tasks.EffectTask;
+import io.github.poqdavid.nyx.nyxeffect.Tasks.MovementDetectionTask;
 import io.github.poqdavid.nyx.nyxeffect.Utils.Data.EffectsData;
 import io.github.poqdavid.nyx.nyxeffect.Utils.Data.ParticlesData;
 import io.github.poqdavid.nyx.nyxeffect.Utils.Data.PlayerData;
@@ -531,66 +534,42 @@ public class NyxEffect {
         Tools.saveparticles(this.UserParticlesLIST, this.userparticledatapath);
     }
 
-    public void ParticleSelfToggle(Player player, EffectsData effect) {
-        final String uuid = player.getUniqueId().toString();
-        final String name = player.getName();
-
-        if (this.UserParticlesLIST.containsKey(uuid)) {
-            final List<String> pd = this.UserParticlesLIST.get(uuid);
-            if (pd.contains(effect.getId())) {
-                pd.remove(effect.getId());
-                if (pd.isEmpty()) {
-                    pd.add("NONE");
-                }
-
-                Tools.RemoveEffectTask(uuid, effect.getId());
-                this.ParticleSet(player, pd);
-                Tools.RemoveMovementTask(player);
-
-                player.sendMessage(Text.of(TextColors.GOLD, name, " You have disabled your " + effect.getName() + " particles"));
-            } else {
-                pd.remove("NONE");
-                pd.add(effect.getId());
-                this.ParticleSet(player, pd);
-
-                Tools.AddMovementTask(player);
-                Tools.AddEffectTask(player, effect.getId());
-
-                player.sendMessage(Text.of(TextColors.GOLD, name, TextColors.AQUA, " You have enabled your " + effect.getName() + " particles"));
-            }
-        } else {
-            final List<String> pd = new ArrayList<>();
-            pd.add(effect.getId());
-            this.ParticleSet(player, pd);
-
-            Tools.AddMovementTask(player);
-            Tools.AddEffectTask(player, effect.getId());
-
-            player.sendMessage(Text.of(TextColors.GOLD, name, TextColors.AQUA, " You have enabled your " + effect.getName() + " particles"));
-        }
-
-        player.playSound(SoundTypes.UI_BUTTON_CLICK, player.getLocation().getPosition(), 0.25);
+    public void ParticleToggle(Player player_args, EffectsData effect) {
+        ParticleToggle(player_args, player_args, effect);
     }
 
-    public void ParticleOtherToggle(CommandSource player_src, Player player_args, EffectsData effect) {
-        final String uuid_args = player_args.getUniqueId().toString();
+    public void ParticleToggle(CommandSource player_cmd_src, Player player_args, EffectsData effect) {
+        final UUID uuid_args = player_args.getUniqueId();
         final String name_args = player_args.getName();
-        final String name_src = player_src.getName();
 
-        if (this.UserParticlesLIST.containsKey(uuid_args)) {
-            final List<String> pd = this.UserParticlesLIST.get(uuid_args);
+        Player player_src = null;
+        String name_src = "Console";
+        UUID uuid_src = UUID.fromString("00000000-0000-0000-0000-000000000000");
+
+        if (player_cmd_src instanceof Player) {
+            player_src = CoreTools.getPlayer(player_cmd_src);
+            name_src = player_src.getName();
+            uuid_src = player_src.getUniqueId();
+        }
+
+        if (this.UserParticlesLIST.containsKey(uuid_args.toString())) {
+            final List<String> pd = this.UserParticlesLIST.get(uuid_args.toString());
             if (pd.contains(effect.getId())) {
                 pd.remove(effect.getId());
                 if (pd.isEmpty()) {
                     pd.add("NONE");
                 }
 
-                Tools.RemoveEffectTask(uuid_args, effect.getId());
+                Tools.RemoveEffectTask(uuid_args.toString(), effect.getId());
                 this.ParticleSet(player_args, pd);
                 Tools.RemoveMovementTask(player_args);
 
-                player_args.sendMessage(Text.of(TextColors.YELLOW, name_src, " has disabled your " + effect.getName() + "!"));
-                player_src.sendMessage(Text.of(TextColors.YELLOW, name_args + "'s " + effect.getName() + " has been disabled!"));
+                if (uuid_src.equals(player_args.getUniqueId())) {
+                    player_args.sendMessage(Text.of(TextColors.GOLD, name_args, " You have disabled your " + effect.getName() + " particles"));
+                } else {
+                    player_args.sendMessage(Text.of(TextColors.YELLOW, name_src, " has disabled your " + effect.getName() + "!"));
+                    player_cmd_src.sendMessage(Text.of(TextColors.YELLOW, name_args + "'s " + effect.getName() + " has been disabled!"));
+                }
             } else {
                 pd.remove("NONE");
                 pd.add(effect.getId());
@@ -599,8 +578,12 @@ public class NyxEffect {
                 Tools.AddMovementTask(player_args);
                 Tools.AddEffectTask(player_args, effect.getId());
 
-                player_args.sendMessage(Text.of(TextColors.YELLOW, name_src + " has given you " + effect.getName() + "!"));
-                player_src.sendMessage(Text.of(TextColors.YELLOW, name_args + " has been given " + effect.getName() + "!"));
+                if (uuid_src.equals(player_args.getUniqueId())) {
+                    player_args.sendMessage(Text.of(TextColors.GOLD, name_args, TextColors.AQUA, " You have enabled your " + effect.getName() + " particles"));
+                } else {
+                    player_args.sendMessage(Text.of(TextColors.YELLOW, name_src + " has given you " + effect.getName() + "!"));
+                    player_cmd_src.sendMessage(Text.of(TextColors.YELLOW, name_args + " has been given " + effect.getName() + "!"));
+                }
             }
 
         } else {
@@ -611,8 +594,16 @@ public class NyxEffect {
             Tools.AddMovementTask(player_args);
             Tools.AddEffectTask(player_args, effect.getId());
 
-            player_args.sendMessage(Text.of(TextColors.YELLOW, name_src + " has given you " + effect.getName() + "!"));
-            player_src.sendMessage(Text.of(TextColors.YELLOW, name_args + " has been given " + effect.getName() + "!"));
+            if (uuid_src.equals(player_args.getUniqueId())) {
+                player_args.sendMessage(Text.of(TextColors.GOLD, name_args, TextColors.AQUA, " You have enabled your " + effect.getName() + " particles"));
+            } else {
+                player_args.sendMessage(Text.of(TextColors.YELLOW, name_src + " has given you " + effect.getName() + "!"));
+                player_cmd_src.sendMessage(Text.of(TextColors.YELLOW, name_args + " has been given " + effect.getName() + "!"));
+            }
+        }
+
+        if (player_cmd_src instanceof Player) {
+            player_src.playSound(SoundTypes.UI_BUTTON_CLICK, player_src.getLocation().getPosition(), 0.25);
         }
 
     }
@@ -633,8 +624,13 @@ public class NyxEffect {
 
         for (Task task : Sponge.getScheduler().getScheduledTasks(this)) {
             if (task.getName().contains(uuid)) {
-                this.getLogger().info("Stopping Task: " + task.getName());
-                task.cancel();
+                if (task.getConsumer() instanceof EffectTask) {
+                    ((EffectTask) task.getConsumer()).taskStop = true;
+                }
+
+                if (task.getConsumer() instanceof MovementDetectionTask) {
+                    ((MovementDetectionTask) task.getConsumer()).taskStop = true;
+                }
             }
         }
 
@@ -662,7 +658,6 @@ public class NyxEffect {
             EffectCMDs.clear();
             for (ParticlesData effect : this.ParticlesLIST) {
                 EffectCMDs.put(effect.getEffectsData().getId(), effect.getEffectsData().getId());
-
             }
         }
 

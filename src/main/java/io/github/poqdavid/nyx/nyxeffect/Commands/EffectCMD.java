@@ -44,67 +44,84 @@ public class EffectCMD implements CommandExecutor {
     }
 
     public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
-        final Player player_cmd_src = CoreTools.getPlayer(src);
         final Player player_args = args.<Player>getOne("player").orElse(null);
         final String effect = args.<String>getOne("effect").orElse(null);
 
+        if (src instanceof Player) {
+            Player player_cmd_src = CoreTools.getPlayer(src);
 
-        if (effect == null) {
-            throw new CommandException(Text.of("Sorry effect can't be empty"));
-        }
 
-        EffectsData effectOBJ;
-        try {
-            effectOBJ = Tools.GetEffect(effect);
-        } catch (Exception e) {
-            throw new CommandException(Text.of("Sorry effect " + effect + " is not available!"));
-        }
-
-        final String effectperm = EffectPermission.EFFECTS + "." + effectOBJ.getId();
-
-        if (player_args == null) {
-            if (player_cmd_src.hasPermission(EffectPermission.COMMAND_EFFECT)) {
-
-                if (!player_cmd_src.hasPermission(effectperm)) {
-                    throw new CommandPermissionException(Text.of("You don't have permission to use this effect."));
-                }
-
-                NyxEffect.getInstance().ParticleSelfToggle(player_cmd_src, effectOBJ);
-            } else {
-                throw new CommandPermissionException(Text.of("You don't have permission to use this command."));
+            if (effect == null) {
+                throw new CommandException(Text.of("Sorry effect can't be empty"));
             }
 
-            return CommandResult.success();
-        }
-
-        if (player_cmd_src.getUniqueId().equals(player_args.getUniqueId())) {
-            if (player_cmd_src.hasPermission(EffectPermission.COMMAND_EFFECT)) {
-
-                if (!player_cmd_src.hasPermission(effectperm)) {
-                    throw new CommandPermissionException(Text.of("You don't have permission to use this effect."));
-                }
-
-                NyxEffect.getInstance().ParticleSelfToggle(player_cmd_src, effectOBJ);
-            } else {
-                throw new CommandPermissionException(Text.of("You don't have permission to use this command."));
+            EffectsData effectOBJ;
+            try {
+                effectOBJ = Tools.GetEffect(effect);
+            } catch (Exception e) {
+                throw new CommandException(Text.of("Sorry effect " + effect + " is not available!"));
             }
 
-            return CommandResult.success();
-        } else {
-            if (src.hasPermission(EffectPermission.COMMAND_EFFECT_OTHER)) {
+            final String effectperm = EffectPermission.EFFECTS + "." + effectOBJ.getId();
 
-                if (!player_args.hasPermission(effectperm)) {
-                    src.sendMessage(Text.of(TextColors.GOLD, TextStyles.BOLD, "The user " + player_args.getName() + " doesn't have the permission to use this effect! (" + effectperm + ")"));
+            if (player_args == null) {
+                if (player_cmd_src.hasPermission(EffectPermission.COMMAND_EFFECT)) {
+
+                    if (!player_cmd_src.hasPermission(effectperm)) {
+                        throw new CommandPermissionException(Text.of("You don't have permission to use this effect."));
+                    }
+
+                    NyxEffect.getInstance().ParticleToggle(player_cmd_src, effectOBJ);
+                } else {
+                    throw new CommandPermissionException(Text.of("You don't have permission to use this command."));
                 }
 
-                NyxEffect.getInstance().ParticleOtherToggle(src, player_args, effectOBJ);
+                return CommandResult.success();
+            }
+
+            if (player_cmd_src.getUniqueId().equals(player_args.getUniqueId())) {
+                if (player_cmd_src.hasPermission(EffectPermission.COMMAND_EFFECT)) {
+
+                    if (!player_cmd_src.hasPermission(effectperm)) {
+                        throw new CommandPermissionException(Text.of("You don't have permission to use this effect."));
+                    }
+
+                    NyxEffect.getInstance().ParticleToggle(player_cmd_src, effectOBJ);
+                } else {
+                    throw new CommandPermissionException(Text.of("You don't have permission to use this command."));
+                }
+
                 return CommandResult.success();
             } else {
-                throw new CommandPermissionException(Text.of("You don't have permission to use this command."));
+                if (src.hasPermission(EffectPermission.COMMAND_EFFECT_OTHER)) {
+
+                    if (!player_args.hasPermission(effectperm)) {
+                        src.sendMessage(Text.of(TextColors.GOLD, TextStyles.BOLD, "The user " + player_args.getName() + " doesn't have the permission to use this effect! (" + effectperm + ")"));
+                    }
+
+                    NyxEffect.getInstance().ParticleToggle(src, player_args, effectOBJ);
+                    return CommandResult.success();
+                } else {
+                    throw new CommandPermissionException(Text.of("You don't have permission to use this command."));
+                }
+                // return CommandResult.success();
             }
-            // return CommandResult.success();
+            //return CommandResult.success();
+        } else {
+            if (effect == null) {
+                throw new CommandException(Text.of("Sorry effect can't be empty"));
+            }
+
+            EffectsData effectOBJ;
+            try {
+                effectOBJ = Tools.GetEffect(effect);
+            } catch (Exception e) {
+                throw new CommandException(Text.of("Sorry effect " + effect + " is not available!"));
+            }
+
+            NyxEffect.getInstance().ParticleToggle(src, player_args, effectOBJ);
+            return CommandResult.success();
         }
-        //return CommandResult.success();
     }
 
 }

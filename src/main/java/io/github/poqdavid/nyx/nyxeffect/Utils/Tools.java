@@ -153,8 +153,7 @@ public class Tools {
         for (Task task : Sponge.getScheduler().getScheduledTasks(NyxEffect.getInstance())) {
             if (task.getName().contains(uuid)) {
                 if (task.getName().contains(effectname)) {
-                    NyxEffect.getInstance().getLogger().info("Stopping Task: " + task.getName());
-                    task.cancel();
+                    ((EffectTask) task.getConsumer()).taskStop = true;
                 }
             }
         }
@@ -196,8 +195,7 @@ public class Tools {
             for (Task task : Sponge.getScheduler().getScheduledTasks(NyxEffect.getInstance())) {
                 if (task.getName().contains(uuid)) {
                     if (task.getName().contains("MovementDetection")) {
-                        NyxEffect.getInstance().getLogger().info("Stopping Task: " + task.getName());
-                        task.cancel();
+                        ((MovementDetectionTask) task.getConsumer()).taskStop = true;
                     }
                 }
             }
@@ -233,8 +231,13 @@ public class Tools {
         if (task.equals("all")) {
             for (Task taskd : Sponge.getScheduler().getScheduledTasks(NyxEffect.getInstance())) {
                 if (taskd.getName().contains(uuid)) {
-                    NyxEffect.getInstance().getLogger().info("Stopping Task: " + taskd.getName());
-                    taskd.cancel();
+                    if (taskd.getConsumer() instanceof EffectTask) {
+                        ((EffectTask) taskd.getConsumer()).taskStop = true;
+                    }
+
+                    if (taskd.getConsumer() instanceof MovementDetectionTask) {
+                        ((MovementDetectionTask) taskd.getConsumer()).taskStop = true;
+                    }
                 }
             }
             NyxEffect.getInstance().PlayerEvent.remove(player.getUniqueId());
