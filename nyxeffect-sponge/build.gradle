@@ -1,0 +1,228 @@
+plugins {
+    id "signing"
+}
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+    maven {
+        name = "Gradle-Plugins"
+        url = "https://plugins.gradle.org/m2"
+    }
+    maven {
+        name = "Sponge"
+        url = "https://repo.spongepowered.org/maven"
+    }
+    maven {
+        name = "Forge"
+        url = "https://files.minecraftforge.net/maven"
+    }
+    maven {
+        name = "Nucleus"
+        url = "https://repo.drnaylor.co.uk/artifactory/list/minecraft"
+    }
+    maven {
+        name = "QuickStart"
+        url = "https://repo.drnaylor.co.uk/artifactory/list/quickstart"
+    }
+    maven {
+        name = "JitPack"
+        url = "https://jitpack.io"
+    }
+    maven {
+        name = "CodeMC"
+        url = "https://repo.codemc.org/repository/maven-public"
+    }
+	ivy {
+        name = 'Pixelmon Reforged'
+        url "https://download.nodecdn.net/containers/reforged/server/release"
+        metadataSources {
+            artifact()
+        }
+        patternLayout {
+            artifact "[revision]/[artifact].[ext]"
+        }
+    }
+}
+
+applyPlugin('net.minecraftforge.gradle')
+applyPlugin('org.cadixdev.licenser')
+applyPlugin('org.spongepowered.mixin')
+applyPlugin('org.spongepowered.gradle.plugin')
+
+applyPlugin('net.kyori.blossom')
+
+sourceCompatibility = '1.8'
+targetCompatibility = '1.8'
+
+version = "$minecraft_version-$project_major.$project_minor-$project_api-$project_suffix" as Object
+
+blossom {
+    replaceToken("@version@", "$project_major.$project_minor")
+    replaceToken("@description@", "$project_description")
+    replaceToken("@id@", "$project_id")
+    replaceToken("@name@", "$project_name")
+    replaceToken("@organization@", "$project_organization")
+    replaceToken("@authors@", "$project_authors")
+    replaceToken("@url@", "$project_url")
+}
+
+if (System.getenv().BUILD_NUMBER != null) {
+    version += "+${System.getenv().BUILD_NUMBER}"
+}
+
+
+mixin {
+    defaultObfuscationEnv "notch"
+}
+
+sourceSets {
+    main {
+        ext.refMap = "mixins.${rootProject.name.toLowerCase()}.refmap.json"
+    }
+}
+
+mixin {
+    add sourceSets.main, "mixins.${rootProject.name.toLowerCase()}.refmap.json"
+}
+
+configurations {
+    provided
+    compile.extendsFrom provided
+    compileJava.options.encoding = "UTF-8"
+    jar.archiveName = "${rootProject.name}-${project.version}.jar"
+}
+
+jar {
+    manifest {
+        attributes 'Main-Class': 'io.github.poqdavid.nyx.nyxcore.NyxCore'
+    }
+}
+
+compileJava {
+    sourceCompatibility = targetCompatibility = "1.8"
+    options.encoding = 'UTF-8'
+    //options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation"
+    options.compilerArgs += [
+            '-Xlint:-processing',
+            '-Xlint:-deprecation',
+    ]
+    options.deprecation = true
+}
+
+dependencies {
+    implementation group: 'org.bstats', name: 'bstats-sponge', version: "$bstats"
+    shadow group: 'org.bstats', name: 'bstats-sponge', version: "$bstats"
+
+    minecraft "net.minecraftforge:forge:$forgeVersion"
+
+    implementation("org.spongepowered:spongeapi:$spongeapi")
+    annotationProcessor("org.spongepowered:spongeapi:$spongeapi")
+
+    implementation "org.spongepowered:mixin:$spongemixin"
+    compile "org.spongepowered:mixin:$spongemixin:processor"
+
+    annotationProcessor("org.spongepowered:mixin:$spongemixin:processor")
+
+    implementation("javax.validation:validation-api:$validation")
+    implementation group: 'commons-io', name: 'commons-io', version: '2.6'
+
+    compileOnly "pixelmon:Pixelmon-1.12.2-$pixelmonVersion-server:$pixelmonVersion"
+
+    implementation 'io.github.poqdavid.nyx:nyxcore-sponge'
+}
+
+signing {
+    required { hasProperty("signing.keyId") }
+    sign configurations.archives
+    sign shadowJar
+}
+
+shadowJar {
+    dependencies {
+        include(dependency('org.bstats:bstats-sponge'))
+        include(dependency('org.bstats:bstats-base'))
+    }
+
+    version = project.version
+    configurations = [project.configurations.shadow]
+
+    relocate "org.bstats", "io.github.poqdavid.nyx.${project_id}.shaded.bstats"
+
+    archiveName("${rootProject.name}-${project.version}.jar")
+
+/*    from(project(':nyxeffect-common').sourceSets.main.output) {
+        include 'io/github/poqdavid/nyx/nyxeffect/**'
+    }*/
+
+    build {
+        dependsOn tasks.named("shadowJar")
+    }
+}
+
+minecraft {
+    mappings channel: "$mappings_channel", version: "$mappings_version"
+}
+
+license {
+    header = file('../HEADER.txt')
+    newLine = true
+    ext {
+        name = "$project_name"
+        organization = "$project_organization"
+        url = "$project_url"
+    }
+    include '**/*.java'
+    include '**/*.groovy'
+}
+
+processResources {
+    // this will ensure that this task is redone when the versions change.
+    inputs.property "version", "$project_major.$project_minor"
+    inputs.property "mcversion", "$minecraft_version"
+    inputs.property "modid", "$project_id"
+    inputs.property "description", "$project_description"
+    // replace stuff in mcmod.info, nothing else
+    from(sourceSets.main.resources.srcDirs) {
+        include "mcmod.info"
+
+        // replace version and mcversion
+        expand 'version': "$project_major.$project_minor", 'mcversion': "$minecraft_version"
+    }
+
+    // copy everything else, thats not the mcmod.info
+    from(sourceSets.main.resources.srcDirs) {
+        exclude "mcmod.info"
+    }
+    from '../LICENSE.txt'
+}
+
+task copyJar(type: Copy) {
+    from jar.archiveFile
+    into 'C:/Minecraft/Servers/Sponge/mods'
+    project.logger.log(LogLevel.WARN, "Copied file: ${jar.archiveFile}")
+}
+
+artifacts {
+    archives shadowJar
+}
+
+tasks.shadowJar.dependsOn('reobfJar')
+
+jar.finalizedBy('reobfJar')
+
+build.finalizedBy('copyJar')
+
+void applyPlugin(String PluginId) {
+    if (project.getPlugins().hasPlugin(PluginId)) {
+        project.logger.log(LogLevel.WARN, "Plugin ${PluginId} already applied")
+    } else {
+        apply plugin: PluginId
+    }
+}
+
+idea {
+    module {
+        inheritOutputDirs = true
+    }
+}
