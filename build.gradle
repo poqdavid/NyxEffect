@@ -32,6 +32,22 @@ ext {
     pixelmonVersion="8.4.2"
     bstats="2.2.1"
     validation="2.0.1.Final"
+
+    // General
+    nyxcore_project_name = "NyxCore"
+    nyxcore_project_id = "nyxcore"
+    nyxcore_project_url = "https://github.com/poqdavid/NyxCore"
+    nyxcore_project_organization = "POQDavid"
+    nyxcore_project_authors = "POQDavid"
+    nyxcore_project_group = "io.github.poqdavid.nyx"
+    nyxcore_project_description = "Core plugin for all of my Nyx plugins."
+
+    // Version's
+    nyxcore_project_test = "tdfsg"
+    nyxcore_project_major = "1"
+    nyxcore_project_minor = "7"
+    nyxcore_project_api = "Sponge-7.4"
+    nyxcore_project_suffix = "STABLE"
 }
 
 sourceCompatibility = '1.8'

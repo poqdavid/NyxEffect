@@ -129,7 +129,8 @@ dependencies {
 
     compileOnly "pixelmon:Pixelmon-1.12.2-$pixelmonVersion-server:$pixelmonVersion"
 
-    implementation 'io.github.poqdavid.nyx:nyxcore-sponge'
+    //compileOnly project(':nyxcore-sponge')
+    //implementation project(path: ':nyxcore-sponge', configuration: 'shadow')
 }
 
 signing {
@@ -198,9 +199,14 @@ processResources {
 }
 
 task copyJar(type: Copy) {
-    from jar.archiveFile
-    into 'C:/Minecraft/Servers/Sponge/mods'
-    project.logger.log(LogLevel.WARN, "Copied file: ${jar.archiveFile}")
+    def dir = new File('C:/Minecraft/Servers/Sponge/mods')
+    if(dir.exists()) {
+        from jar.archiveFile
+        into "${dir}"
+        project.logger.log(LogLevel.WARN, "Copied file: ${jar.archiveFile}")
+    }else {
+        project.logger.log(LogLevel.WARN, "Destination Dir: ${dir} Doesn't exists!!")
+    }
 }
 
 artifacts {
