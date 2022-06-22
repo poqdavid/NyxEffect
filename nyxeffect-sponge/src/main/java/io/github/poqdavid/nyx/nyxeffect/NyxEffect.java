@@ -76,7 +76,6 @@ public class NyxEffect {
     public final Path particlesdatapath;
     private final NCLogger logger;
     private final Metrics metrics;
-    private final Path dataDir;
     private final Path userparticledatapath;
     private final PluginContainer pluginContainer;
     public Map<UUID, PlayerData> PlayerEvent;
@@ -97,8 +96,6 @@ public class NyxEffect {
     public NyxEffect(Metrics.Factory metricsFactory, @ConfigDir(sharedRoot = true) Path path, Logger logger, PluginContainer container) {
         NyxEffect = this;
         this.pluginContainer = container;
-
-        this.dataDir = Sponge.getGame().getSavesDirectory().resolve(this.getPluginContainer().getId());
 
         this.logger = NyxCore.getInstance().getLogger(CText.get(CText.Colors.BLUE, 1, "Nyx") + CText.get(CText.Colors.MAGENTA, 0, "Effect"));
 

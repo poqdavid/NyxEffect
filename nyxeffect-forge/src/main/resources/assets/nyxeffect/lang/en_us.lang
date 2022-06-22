@@ -1,0 +1,3 @@
+NyxEffect.EffectCMD.Effect.Null=Sorry effect can't be empty
+NyxEffect.EffectCMD.Effect.NotAvailable=Sorry effect %s is not available!
+NyxEffect.NoPermission=You don't have permission to use this effect.

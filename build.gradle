@@ -27,13 +27,13 @@ ext {
     minecraft_version="1.12.2"
     forge_rundir="run/forge"
     forgeVersion="1.12.2-14.23.5.2860"
-    mappings_channel="stable"
-    mappings_version="39-1.12"
+    mappings_channel = "snapshot"
+    mappings_version = "20171003-1.12"
     pixelmonVersion="8.4.2"
     bstats="2.2.1"
     validation="2.0.1.Final"
 
-    // General
+/*    // General
     nyxcore_project_name = "NyxCore"
     nyxcore_project_id = "nyxcore"
     nyxcore_project_url = "https://github.com/poqdavid/NyxCore"
@@ -47,7 +47,7 @@ ext {
     nyxcore_project_major = "1"
     nyxcore_project_minor = "7"
     nyxcore_project_api = "Sponge-7.4"
-    nyxcore_project_suffix = "STABLE"
+    nyxcore_project_suffix = "STABLE"*/
 }
 
 sourceCompatibility = '1.8'

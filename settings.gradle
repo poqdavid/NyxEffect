@@ -1,20 +1,9 @@
 rootProject.name = 'NyxEffect'
 
-include ':nyxeffect-sponge', ':nyxcore-sponge', ':nyxcore-forge', ':nyxcore-common'
+include ':nyxeffect-sponge',':nyxeffect-forge'
 //include ':NyxCore', ':nyxcore-forge', ':nyxcore-sponge', ':nyxcore-common'
 
 //project(':NyxCore').projectDir = new File('../NyxCore')
 //project(':nyxcore-sponge').projectDir = new File('../NyxCore/nyxcore-sponge')
 //project(':nyxcore-forge').projectDir = new File('../NyxCore/nyxcore-forge')
 //project(':nyxcore-common').projectDir = new File('../NyxCore/nyxcore-common')
-
-includeBuild("../NyxCore") {
-    dependencySubstitution {
-        substitute(module("io.github.poqdavid.nyx:nyxcore-sponge"))
-                .with(project(":"))
-        substitute(module("io.github.poqdavid.nyx:nyxcore-forge"))
-                .with(project(":"))
-        substitute(module("io.github.poqdavid.nyx:nyxcore-common"))
-                .with(project(":"))
-    }
-}

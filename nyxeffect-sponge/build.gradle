@@ -129,6 +129,8 @@ dependencies {
 
     compileOnly "pixelmon:Pixelmon-1.12.2-$pixelmonVersion-server:$pixelmonVersion"
 
+    implementation fileTree(dir: '../../NyxCore/nyxcore-sponge/build/libs', include: '*.jar')
+
     //compileOnly project(':nyxcore-sponge')
     //implementation project(path: ':nyxcore-sponge', configuration: 'shadow')
 }

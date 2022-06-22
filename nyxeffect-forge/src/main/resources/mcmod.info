@@ -1,0 +1,23 @@
+[
+  {
+    "modid": "nyxeffect",
+    "name": "NyxEffect",
+    "description": "A plugin for crazy cool effects",
+    "version": "${version}",
+    "mcversion": "${mcversion}",
+    "url": "https://github.com/poqdavid/NyxEffect",
+    "updateUrl": "",
+    "authorList": [
+      "POQDavid"
+    ],
+    "credits": "",
+    "logoFile": "",
+    "screenshots": [],
+    "dependencies": [
+      "required-after:nyxcore"
+    ],
+    "requiredMods": [
+      "required-after:nyxcore"
+    ]
+  }
+]
